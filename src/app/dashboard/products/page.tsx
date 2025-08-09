@@ -142,6 +142,7 @@ export default function ProductsPage() {
   };
   
   const canPerformActions = user?.role === 'admin' || user?.role === 'seller';
+  const canAddProducts = user?.role === 'admin';
   
   return (
     <div className="flex flex-col gap-6">
@@ -150,7 +151,7 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Catálogo de Productos</h1>
           <p className="text-muted-foreground">Gestiona el inventario de productos de Divine Glow.</p>
         </div>
-        {canPerformActions && (
+        {canAddProducts && (
           <Dialog open={isAddProductDialogOpen} onOpenChange={setIsAddProductDialogOpen}>
             <DialogTrigger asChild>
               <Button>
