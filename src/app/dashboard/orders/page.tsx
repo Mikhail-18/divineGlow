@@ -11,17 +11,39 @@ import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
+const ORDERS_STORAGE_KEY = 'divine-hub-orders';
+
 export default function OrdersPage() {
-  const [orders, setOrders] = React.useState<Order[]>(initialOrders);
+  const [orders, setOrders] = React.useState<Order[]>([]);
   const { user } = useAuth();
   const [openOrderId, setOpenOrderId] = React.useState<string | null>(null);
 
+  React.useEffect(() => {
+      try {
+        const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
+        if (storedOrders) {
+            setOrders(JSON.parse(storedOrders));
+        } else {
+            setOrders(initialOrders);
+            localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(initialOrders));
+        }
+      } catch (error) {
+          console.error('Failed to parse orders from localStorage', error);
+          setOrders(initialOrders);
+      }
+  }, [])
+
+  const updateOrders = (updatedOrders: Order[]) => {
+      setOrders(updatedOrders);
+      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updatedOrders));
+  }
+
+
   const handleUpdateStatus = (orderId: string, status: Order['status']) => {
-    setOrders(currentOrders =>
-      currentOrders.map(order =>
+    const updatedOrders = orders.map(order =>
         order.id === orderId ? { ...order, status } : order
-      )
-    );
+    )
+    updateOrders(updatedOrders);
   };
   
   const getStatusVariant = (status: Order['status']) => {

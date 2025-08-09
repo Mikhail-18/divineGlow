@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { products as allProducts, customers as initialCustomers } from '@/lib/data';
-import type { Product, Customer, OrderItem } from '@/lib/types';
+import { products as allProducts, customers as initialCustomers, orders as initialOrders } from '@/lib/data';
+import type { Product, Customer, Order, OrderItem } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,11 +26,13 @@ import {
 type CartItem = OrderItem & { image: string };
 
 const CUSTOMERS_STORAGE_KEY = 'divine-hub-customers';
+const ORDERS_STORAGE_KEY = 'divine-hub-orders';
 
 export default function POSPage() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>(allProducts);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +45,7 @@ export default function POSPage() {
 
   useEffect(() => {
     try {
+      // Load Customers
       const storedCustomers = localStorage.getItem(CUSTOMERS_STORAGE_KEY);
       const parsedCustomers = storedCustomers ? JSON.parse(storedCustomers) : initialCustomers;
       setCustomers(parsedCustomers);
@@ -54,9 +57,18 @@ export default function POSPage() {
         setSelectedCustomer(parsedCustomers[0].id)
       }
 
+      // Load Orders
+       const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
+       if (storedOrders) {
+         setOrders(JSON.parse(storedOrders));
+       } else {
+         setOrders(initialOrders);
+       }
+
     } catch (error) {
-      console.error('Failed to parse customers from localStorage', error);
+      console.error('Failed to parse data from localStorage', error);
       setCustomers(initialCustomers);
+      setOrders(initialOrders);
     }
   }, []);
 
@@ -64,6 +76,11 @@ export default function POSPage() {
     setCustomers(updatedCustomers);
     localStorage.setItem(CUSTOMERS_STORAGE_KEY, JSON.stringify(updatedCustomers));
   };
+  
+  const updateOrders = (updatedOrders: Order[]) => {
+    setOrders(updatedOrders);
+    localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updatedOrders));
+  }
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,12 +159,17 @@ export default function POSPage() {
         return;
     }
     
-    // Here you would typically send the order to your backend
-    console.log("Creating order:", {
-        customer: customer.name,
-        items: cart,
+    const newOrder: Order = {
+        id: `ord-${Date.now()}`,
+        customerName: customer.name,
+        customerAvatar: customer.avatarUrl,
+        date: new Date().toISOString().split('T')[0],
+        status: 'Pendiente',
+        items: cart.map(({ image, ...item }) => item), // Remove image property from cart items
         total: cartTotal
-    });
+    };
+
+    updateOrders([newOrder, ...orders]);
     
     toast({
       title: "Pedido Creado",
@@ -329,5 +351,3 @@ export default function POSPage() {
     </div>
   );
 }
-
-    
