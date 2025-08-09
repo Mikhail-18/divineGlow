@@ -40,7 +40,7 @@ export default function OrdersPage() {
   };
   
   const canMarkAsShipped = user?.role === 'admin' || user?.role === 'warehouse';
-  const canMarkAsPaid = user?.role === 'admin' || user?.role === 'seller';
+  const canMarkAsPaid = user?.role === 'admin' || user?.role === 'cajero';
 
   return (
     <div className="flex flex-col gap-6">
