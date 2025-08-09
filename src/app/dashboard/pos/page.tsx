@@ -299,60 +299,58 @@ export default function POSPage() {
         <Card className="flex-1 flex flex-col">
           <CardHeader>
             <CardTitle>Pedido Actual</CardTitle>
-            <CardDescription>
-                <div className="space-y-2 pt-4">
-                    <Label htmlFor="customer-select">Cliente</Label>
-                    <div className="flex gap-2">
-                    <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                        <SelectTrigger id="customer-select">
-                        <SelectValue placeholder="Seleccionar cliente" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        {customers.map(customer => (
-                            <SelectItem key={customer.id} value={customer.id}>
-                            {customer.name}
-                            </SelectItem>
-                        ))}
-                        </SelectContent>
-                    </Select>
-                    <Dialog open={isAddCustomerDialogOpen} onOpenChange={setIsAddCustomerDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <UserPlus className="h-4 w-4"/>
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Añadir Nuevo Cliente</DialogTitle>
-                                <DialogDescription>
-                                    Completa los detalles para agregar un nuevo cliente.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">Nombre</Label>
-                                    <Input id="name" value={newCustomer.name} onChange={handleInputChange} className="col-span-3" />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="email" className="text-right">Email</Label>
-                                    <Input id="email" type="email" value={newCustomer.email} onChange={handleInputChange} className="col-span-3" />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="phone" className="text-right">Teléfono</Label>
-                                    <Input id="phone" value={newCustomer.phone} onChange={handleInputChange} className="col-span-3" />
-                                </div>
+             <div className="space-y-2 pt-4">
+                <Label htmlFor="customer-select">Cliente</Label>
+                <div className="flex gap-2">
+                <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
+                    <SelectTrigger id="customer-select">
+                    <SelectValue placeholder="Seleccionar cliente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {customers.map(customer => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                        {customer.name}
+                        </SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+                <Dialog open={isAddCustomerDialogOpen} onOpenChange={setIsAddCustomerDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="icon">
+                            <UserPlus className="h-4 w-4"/>
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Añadir Nuevo Cliente</DialogTitle>
+                            <DialogDescription>
+                                Completa los detalles para agregar un nuevo cliente.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="name" className="text-right">Nombre</Label>
+                                <Input id="name" value={newCustomer.name} onChange={handleInputChange} className="col-span-3" />
                             </div>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="outline">Cancelar</Button>
-                                </DialogClose>
-                                <Button onClick={handleAddNewCustomer}>Guardar Cliente</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                    </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="email" className="text-right">Email</Label>
+                                <Input id="email" type="email" value={newCustomer.email} onChange={handleInputChange} className="col-span-3" />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="phone" className="text-right">Teléfono</Label>
+                                <Input id="phone" value={newCustomer.phone} onChange={handleInputChange} className="col-span-3" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancelar</Button>
+                            </DialogClose>
+                            <Button onClick={handleAddNewCustomer}>Guardar Cliente</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
                 </div>
-            </CardDescription>
+            </div>
           </CardHeader>
           <CardContent className="flex-1 p-0">
             <ScrollArea className="h-[calc(100vh-28rem)]">
