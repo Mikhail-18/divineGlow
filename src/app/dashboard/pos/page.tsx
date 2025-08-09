@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { products as allProducts, customers as initialCustomers, orders as initialOrders } from '@/lib/data';
@@ -15,7 +16,7 @@ import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  DialogDescription as DialogDesc,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -299,7 +300,7 @@ export default function POSPage() {
         <Card className="flex-1 flex flex-col">
           <CardHeader>
             <CardTitle>Pedido Actual</CardTitle>
-            <CardDescription>
+            <div className="text-sm text-muted-foreground">
                 <div className="space-y-2 pt-4">
                     <Label htmlFor="customer-select">Cliente</Label>
                     <div className="flex gap-2">
@@ -324,9 +325,9 @@ export default function POSPage() {
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Añadir Nuevo Cliente</DialogTitle>
-                                <DialogDescription>
+                                <DialogDesc>
                                     Completa los detalles para agregar un nuevo cliente.
-                                </DialogDescription>
+                                </DialogDesc>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -352,7 +353,7 @@ export default function POSPage() {
                     </Dialog>
                     </div>
                 </div>
-            </CardDescription>
+            </div>
           </CardHeader>
           <CardContent className="flex-1 p-0">
             <ScrollArea className="h-[calc(100vh-28rem)]">
@@ -408,3 +409,5 @@ export default function POSPage() {
     </div>
   );
 }
+
+    
