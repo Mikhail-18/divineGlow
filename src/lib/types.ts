@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'seller' | 'warehouse';
+export type UserRole = 'admin' | 'seller' | 'warehouse' | 'cajero';
 
 export type User = {
   name: string;

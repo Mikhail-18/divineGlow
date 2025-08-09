@@ -16,7 +16,8 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const passwords: Record<UserRole, string> = {
     admin: 'admin123',
     seller: 'seller123',
-    warehouse: 'warehouse123'
+    warehouse: 'warehouse123',
+    cajero: 'cajero123'
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

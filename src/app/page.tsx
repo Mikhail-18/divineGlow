@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { KeyRound, Building, User, Warehouse, LogIn } from 'lucide-react';
+import { KeyRound, User, Warehouse, LogIn, DollarSign } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useToast } from '@/hooks/use-toast';
 
@@ -41,6 +41,7 @@ export default function LoginPage() {
     if (selectedRole === 'admin') userName = 'Admin';
     if (selectedRole === 'seller') userName = 'Vendedor';
     if (selectedRole === 'warehouse') userName = 'Almacenero';
+    if (selectedRole === 'cajero') userName = 'Cajero';
 
     const isAuthenticated = login({ name: userName, role: selectedRole }, password);
 
@@ -56,12 +57,14 @@ export default function LoginPage() {
     admin: KeyRound,
     seller: User,
     warehouse: Warehouse,
+    cajero: DollarSign
   };
   
   const roleNames: Record<UserRole, string> = {
       admin: 'Administrador',
       seller: 'Vendedor',
-      warehouse: 'Almacenero'
+      warehouse: 'Almacenero',
+      cajero: 'Cajero'
   }
 
   return (
@@ -93,6 +96,9 @@ export default function LoginPage() {
                   </Button>
                    <Button onClick={() => handleRoleSelect('warehouse')} size="lg" className="w-full" variant="outline">
                     <Warehouse className="mr-2 h-5 w-5" /> Entrar como Almacenero
+                  </Button>
+                  <Button onClick={() => handleRoleSelect('cajero')} size="lg" className="w-full" variant="outline">
+                    <DollarSign className="mr-2 h-5 w-5" /> Entrar como Cajero
                   </Button>
                 </div>
               </div>
