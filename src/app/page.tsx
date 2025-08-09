@@ -55,8 +55,7 @@ export default function LoginPage() {
       return;
     }
     
-    let userName = 'Usuario';
-    let userToLogin = { name: userName, role: selectedRole };
+    let userToLogin: { name: string, role: UserRole };
     
     if (selectedRole === 'seller') {
       if (!selectedSellerId) {
@@ -68,10 +67,9 @@ export default function LoginPage() {
         toast({ title: 'Error', description: 'Vendedor no encontrado.', variant: 'destructive' });
         return;
       }
-      userName = seller.name;
-      userToLogin = { name: userName, role: selectedRole };
-
+      userToLogin = { name: seller.name, role: selectedRole };
     } else {
+        let userName = 'Usuario';
         if (selectedRole === 'admin') userName = 'Admin';
         if (selectedRole === 'warehouse') userName = 'Almacenero';
         if (selectedRole === 'cajero') userName = 'Cajero';
@@ -85,7 +83,7 @@ export default function LoginPage() {
 
     setLoading(true);
 
-    const isAuthenticated = login(userToLogin, password, selectedSellerId);
+    const isAuthenticated = login(userToLogin, password);
 
     if (isAuthenticated) {
       router.push('/dashboard');
