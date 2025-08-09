@@ -99,18 +99,18 @@ export default function CashClosingPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                 <h1 className="text-3xl font-bold tracking-tight">Cierre de Caja</h1>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cierre de Caja</h1>
                  <div className="flex items-center gap-2">
                     <Button variant="outline" onClick={handleExport}>
                         <Download className="mr-2 h-4 w-4" />
-                        Exportar Reporte
+                        Exportar
                     </Button>
                      <Button variant="destructive" onClick={handleCloseShift}>
                         <PowerOff className="mr-2 h-4 w-4" />
                         Cerrar Turno
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                         <Bell className="h-5 w-5" />
                     </Button>
                  </div>
@@ -178,7 +178,7 @@ export default function CashClosingPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Cliente</TableHead>
-                                <TableHead>Método de Pago</TableHead>
+                                <TableHead className="hidden sm:table-cell">Método de Pago</TableHead>
                                 <TableHead className="text-right">Monto Total</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -187,7 +187,7 @@ export default function CashClosingPage() {
                                 paidOrders.map(order => (
                                     <TableRow key={order.id}>
                                         <TableCell className="font-medium">{order.customerName}</TableCell>
-                                        <TableCell>{order.paymentMethod || 'No especificado'}</TableCell>
+                                        <TableCell className="hidden sm:table-cell">{order.paymentMethod || 'No especificado'}</TableCell>
                                         <TableCell className="text-right">S/{order.total.toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))

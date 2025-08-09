@@ -60,7 +60,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {user?.name}!</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Bienvenido, {user?.name}!</h1>
         <p className="text-muted-foreground">Aquí tienes un resumen de la actividad de Divine Glow.</p>
       </div>
       

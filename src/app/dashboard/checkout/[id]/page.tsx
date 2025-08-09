@@ -152,7 +152,7 @@ export default function CheckoutPage() {
                 <Button variant="outline" size="icon" onClick={() => router.back()}>
                     <ArrowLeft className="h-4 w-4"/>
                 </Button>
-                <h1 className="text-2xl font-bold">Cobrar Pedido #{order.id.split('-')[1]}</h1>
+                <h1 className="text-xl md:text-2xl font-bold">Cobrar Pedido #{order.id.split('-')[1]}</h1>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">

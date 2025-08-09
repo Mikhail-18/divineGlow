@@ -1,3 +1,4 @@
+
 'use client';
 import { products as initialProducts } from '@/lib/data';
 import type { Product } from '@/lib/types';
@@ -148,15 +149,15 @@ export default function ProductsPage() {
   
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Catálogo de Productos</h1>
-          <p className="text-muted-foreground">Gestiona el inventario de productos de Divine Glow.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Catálogo de Productos</h1>
+          <p className="text-muted-foreground">Gestiona el inventario de productos.</p>
         </div>
         {canAddProducts && (
           <Dialog open={isAddProductDialogOpen} onOpenChange={setIsAddProductDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Añadir Producto
               </Button>
@@ -165,7 +166,7 @@ export default function ProductsPage() {
               <DialogHeader>
                 <DialogTitle>Añadir Nuevo Producto</DialogTitle>
                 <DialogDescription>
-                  Completa los detalles para agregar un nuevo producto al catálogo.
+                  Completa los detalles para agregar un nuevo producto.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -215,13 +216,13 @@ export default function ProductsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="hidden w-[100px] sm:table-cell">
+                <TableHead className="hidden w-[64px] sm:table-cell">
                   <span className="sr-only">Imagen</span>
                 </TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="hidden md:table-cell">Precio</TableHead>
-                <TableHead>Stock</TableHead>
+                <TableHead className="hidden sm:table-cell">Stock</TableHead>
                 {canPerformActions && <TableHead><span className="sr-only">Acciones</span></TableHead>}
               </TableRow>
             </TableHeader>
@@ -247,7 +248,7 @@ export default function ProductsPage() {
                   <TableCell className="hidden md:table-cell">
                     S/{product.price.toFixed(2)}
                   </TableCell>
-                  <TableCell>{product.stock} unidades</TableCell>
+                  <TableCell className="hidden sm:table-cell">{product.stock} unidades</TableCell>
                    {canPerformActions && (
                     <TableCell className="text-right">
                         <AlertDialog>

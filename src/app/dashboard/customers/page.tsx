@@ -1,3 +1,4 @@
+
 'use client';
 import { customers as initialCustomers } from '@/lib/data';
 import type { Customer } from '@/lib/types';
@@ -107,14 +108,14 @@ export default function CustomersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Clientes</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gestión de Clientes</h1>
           <p className="text-muted-foreground">Consulta y administra la información de los clientes.</p>
         </div>
         <Dialog open={isAddCustomerDialogOpen} onOpenChange={setIsAddCustomerDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" />
               Añadir Cliente
             </Button>
@@ -163,8 +164,8 @@ export default function CustomersPage() {
                 <TableHead>Nombre</TableHead>
                 <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead className="hidden sm:table-cell">Teléfono</TableHead>
-                <TableHead className="hidden md:table-cell">Último Pedido</TableHead>
-                <TableHead className="text-right">Gasto Total</TableHead>
+                <TableHead className="hidden lg:table-cell">Último Pedido</TableHead>
+                <TableHead className="text-right hidden sm:table-cell">Gasto Total</TableHead>
                 <TableHead><span className="sr-only">Acciones</span></TableHead>
               </TableRow>
             </TableHeader>
@@ -182,8 +183,8 @@ export default function CustomersPage() {
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
                   <TableCell className="hidden sm:table-cell">{customer.phone}</TableCell>
-                  <TableCell className="hidden md:table-cell">{customer.lastOrderDate}</TableCell>
-                  <TableCell className="text-right">S/{customer.totalSpent.toFixed(2)}</TableCell>
+                  <TableCell className="hidden lg:table-cell">{customer.lastOrderDate}</TableCell>
+                  <TableCell className="text-right hidden sm:table-cell">S/{customer.totalSpent.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                      <AlertDialog>
                         <DropdownMenu>
