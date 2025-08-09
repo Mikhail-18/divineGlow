@@ -148,7 +148,7 @@ export default function CashClosingPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Cliente/Mesa</TableHead>
+                                <TableHead>Cliente</TableHead>
                                 <TableHead>Método de Pago</TableHead>
                                 <TableHead className="text-right">Monto Total</TableHead>
                             </TableRow>
