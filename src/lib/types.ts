@@ -45,6 +45,7 @@ export type Order = {
   items: OrderItem[];
   total: number;
   paymentMethod?: PaymentMethod;
+  sellerName?: string;
 };
 
 export type Seller = {

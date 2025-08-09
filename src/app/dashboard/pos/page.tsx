@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { products as allProducts, customers as initialCustomers, orders as initialOrders } from '@/lib/data';
 import type { Product, Customer, Order, OrderItem } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PlusCircle, X, Search, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import Image from 'next/image';
 import {
   Dialog,
@@ -32,6 +33,7 @@ const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 export default function POSPage() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -221,7 +223,8 @@ export default function POSPage() {
         date: new Date().toISOString().split('T')[0],
         status: 'Pendiente',
         items: cart.map(({ image, ...item }) => item), // Remove image property from cart items
-        total: cartTotal
+        total: cartTotal,
+        sellerName: user?.name,
     };
 
     updateOrders([newOrder, ...orders]);
@@ -300,8 +303,8 @@ export default function POSPage() {
         <Card className="flex-1 flex flex-col">
           <CardHeader>
             <CardTitle>Pedido Actual</CardTitle>
-            <div className="text-sm text-muted-foreground">
-                <div className="space-y-2 pt-4">
+            <div className="text-sm text-muted-foreground pt-4">
+                <div className="space-y-2">
                     <Label htmlFor="customer-select">Cliente</Label>
                     <div className="flex gap-2">
                     <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
@@ -409,5 +412,3 @@ export default function POSPage() {
     </div>
   );
 }
-
-    
