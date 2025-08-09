@@ -7,12 +7,25 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, PowerOff, Bell } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 
 const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 export default function CashClosingPage() {
     const [paidOrders, setPaidOrders] = useState<Order[]>([]);
+    const { toast } = useToast();
 
     useEffect(() => {
         try {
@@ -93,8 +106,30 @@ export default function CashClosingPage() {
     };
     
     const handleCloseShift = () => {
-         // This is a placeholder
-        alert('Cerrando turno...');
+        try {
+            const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
+            if (storedOrders) {
+                const allOrders: Order[] = JSON.parse(storedOrders);
+                // Keep only the non-paid orders for the next shift
+                const remainingOrders = allOrders.filter(order => order.status !== 'Pagado');
+                localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(remainingOrders));
+
+                // Clear the view for the current user
+                setPaidOrders([]);
+
+                toast({
+                    title: 'Turno Cerrado',
+                    description: 'Se han archivado los pedidos pagados. El nuevo turno está listo.',
+                });
+            }
+        } catch (error) {
+            console.error('Failed to close shift', error);
+            toast({
+                title: 'Error',
+                description: 'No se pudo cerrar el turno.',
+                variant: 'destructive',
+            });
+        }
     }
 
     return (
@@ -102,14 +137,31 @@ export default function CashClosingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cierre de Caja</h1>
                  <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={handleExport}>
+                    <Button variant="outline" onClick={handleExport} disabled={paidOrders.length === 0}>
                         <Download className="mr-2 h-4 w-4" />
                         Exportar
                     </Button>
-                     <Button variant="destructive" onClick={handleCloseShift}>
-                        <PowerOff className="mr-2 h-4 w-4" />
-                        Cerrar Turno
-                    </Button>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" disabled={paidOrders.length === 0}>
+                                <PowerOff className="mr-2 h-4 w-4" />
+                                Cerrar Turno
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>¿Estás seguro de cerrar el turno?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Esta acción eliminará todos los pedidos pagados de la vista actual y los archivará.
+                                    No podrás deshacer esta acción.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleCloseShift}>Sí, cerrar turno</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                     <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
                         <Bell className="h-5 w-5" />
                     </Button>
@@ -179,6 +231,7 @@ export default function CashClosingPage() {
                             <TableRow>
                                 <TableHead>Cliente</TableHead>
                                 <TableHead className="hidden sm:table-cell">Método de Pago</TableHead>
+                                <TableHead className="hidden sm:table-cell">Vendedor</TableHead>
                                 <TableHead className="text-right">Monto Total</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -188,12 +241,13 @@ export default function CashClosingPage() {
                                     <TableRow key={order.id}>
                                         <TableCell className="font-medium">{order.customerName}</TableCell>
                                         <TableCell className="hidden sm:table-cell">{order.paymentMethod || 'No especificado'}</TableCell>
+                                        <TableCell className="hidden sm:table-cell">{order.sellerName || 'N/A'}</TableCell>
                                         <TableCell className="text-right">S/{order.total.toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={3} className="h-24 text-center">
+                                    <TableCell colSpan={4} className="h-24 text-center">
                                         No hay transacciones pagadas en este turno.
                                     </TableCell>
                                 </TableRow>
