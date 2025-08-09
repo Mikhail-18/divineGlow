@@ -22,6 +22,11 @@ export default function LoginPage() {
   const [selectedRole, setSelectedRole] = React.useState<UserRole | null>(null);
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+  const [currentYear, setCurrentYear] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -137,7 +142,7 @@ export default function LoginPage() {
         </Card>
       </div>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Divine Glow. Todos los derechos reservados.</p>
+        {currentYear && <p>&copy; {currentYear} Divine Glow. Todos los derechos reservados.</p>}
       </footer>
     </main>
   );
