@@ -6,10 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Truck, CheckCircle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Truck, CheckCircle, ChevronDown, ChevronRight, CreditCard } from 'lucide-react';
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useRouter } from 'next/navigation';
 
 const ORDERS_STORAGE_KEY = 'divine-hub-orders';
 
@@ -17,6 +18,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const { user } = useAuth();
   const [openOrderId, setOpenOrderId] = React.useState<string | null>(null);
+  const router = useRouter();
 
   React.useEffect(() => {
       try {
@@ -62,7 +64,7 @@ export default function OrdersPage() {
   };
   
   const canMarkAsShipped = user?.role === 'admin' || user?.role === 'warehouse';
-  const canMarkAsPaid = user?.role === 'admin' || user?.role === 'cajero';
+  const canProcessPayment = user?.role === 'admin' || user?.role === 'cajero';
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,17 +116,17 @@ export default function OrdersPage() {
                       <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            {canMarkAsPaid && order.status === 'Pendiente' && (
+                            {canProcessPayment && order.status === 'Pendiente' && (
                                 <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleUpdateStatus(order.id, 'Pagado');
+                                    router.push(`/dashboard/checkout/${order.id}`);
                                 }}
                                 >
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Marcar como Pagado
+                                <CreditCard className="mr-2 h-4 w-4" />
+                                Procesar Pago
                                 </Button>
                             )}
                             {canMarkAsShipped && (order.status === 'Pagado' || order.status === 'Pendiente') && (

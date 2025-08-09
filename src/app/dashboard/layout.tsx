@@ -55,7 +55,7 @@ export default function DashboardLayout({
     { href: '/dashboard/pos', label: 'Punto de Venta', icon: PlusSquare, roles: ['admin', 'seller', 'cajero'] },
     { href: '/dashboard/products', label: 'Productos', icon: Package, roles: ['admin', 'seller', 'warehouse'] },
     { href: '/dashboard/customers', label: 'Clientes', icon: Users, roles: ['admin', 'seller'] },
-    { href: ' /dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse', 'cajero'] },
+    { href: '/dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse', 'cajero'] },
   ];
 
   if (loading || !isAuthenticated) {
@@ -68,6 +68,12 @@ export default function DashboardLayout({
       </div>
     );
   }
+  
+  // Hide layout for checkout page
+  if (pathname.includes('/dashboard/checkout/')) {
+    return <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>;
+  }
+
 
   return (
     <SidebarProvider>
