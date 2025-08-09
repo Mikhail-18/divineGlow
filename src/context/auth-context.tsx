@@ -6,18 +6,25 @@ import { createContext, useState, useEffect, useCallback, type ReactNode } from 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (user: User) => void;
+  login: (user: User, password?: string) => boolean;
   logout: () => void;
   loading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const passwords: Record<UserRole, string> = {
+    admin: 'admin123',
+    seller: 'seller123',
+    warehouse: 'warehouse123'
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     try {
       const storedUser = localStorage.getItem('divine-hub-user');
       if (storedUser) {
@@ -31,25 +38,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = useCallback((userData: User) => {
-    localStorage.setItem('divine-hub-user', JSON.stringify(userData));
-    setUser(userData);
-  }, []);
+  const login = useCallback((userData: User, password?: string) => {
+    if (password && passwords[userData.role] === password) {
+        localStorage.setItem('divine-hub-user', JSON.stringify(userData));
+        setUser(userData);
+        return true;
+    }
+    // This allows login without password if it's not provided, for sessions loaded from localStorage
+    if (!password && user) {
+        return true;
+    }
+    return false;
+  }, [user]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('divine-hub-user');
     setUser(null);
   }, []);
 
-  if (loading) {
-    return null;
-  }
-
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, logout, loading: false }}
+      value={{ user, isAuthenticated: !!user, login, logout, loading }}
     >
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
