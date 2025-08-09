@@ -101,7 +101,7 @@ export default function OrdersPage() {
             <TableBody>
               {orders.map((order) => (
                 <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)}>
-                  <>
+                  <React.Fragment>
                     <TableRow className="cursor-pointer">
                       <TableCell>
                         <CollapsibleTrigger asChild>
@@ -225,7 +225,7 @@ export default function OrdersPage() {
                           </TableCell>
                        </TableRow>
                     </CollapsibleContent>
-                  </>
+                  </React.Fragment>
                 </Collapsible>
               ))}
             </TableBody>
