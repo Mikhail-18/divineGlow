@@ -56,7 +56,6 @@ export default function ProductsPage() {
     description: '',
     price: '',
     stock: '',
-    image: '',
   });
   
   useEffect(() => {
@@ -101,10 +100,10 @@ export default function ProductsPage() {
         price: parseFloat(newProduct.price),
         stock: parseInt(newProduct.stock, 10),
         lowStockThreshold: 10, // Default value
-        image: newProduct.image || 'https://placehold.co/400x400.png',
+        image: 'https://placehold.co/400x400.png',
       };
       updateProducts([productToAdd, ...products]);
-      setNewProduct({ name: '', description: '', price: '', stock: '', image: '' });
+      setNewProduct({ name: '', description: '', price: '', stock: '' });
       setIsAddProductDialogOpen(false);
     } else {
       alert('Por favor, completa todos los campos requeridos.');
@@ -192,12 +191,6 @@ export default function ProductsPage() {
                   </Label>
                   <Input id="stock" type="number" value={newProduct.stock} onChange={handleInputChange} className="col-span-3" />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="image" className="text-right">
-                    URL de Imagen
-                  </Label>
-                  <Input id="image" value={newProduct.image} onChange={handleInputChange} className="col-span-3" placeholder="https://ejemplo.com/imagen.png" />
-                </div>
               </div>
               <DialogFooter>
                 <DialogClose asChild>
@@ -215,7 +208,7 @@ export default function ProductsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="hidden w-[100px] sm:table-cell">
-                  Imagen
+                  <span className="sr-only">Imagen</span>
                 </TableHead>
                 <TableHead>Nombre</TableHead>
                 <TableHead>Estado</TableHead>
@@ -330,12 +323,6 @@ export default function ProductsPage() {
                 </Label>
                 <Input id="stock" type="number" value={selectedProduct?.stock || ''} onChange={handleEditInputChange} className="col-span-3" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="image" className="text-right">
-                URL de Imagen
-                </Label>
-                <Input id="image" value={selectedProduct?.image || ''} onChange={handleEditInputChange} className="col-span-3" />
-            </div>
           </div>
           <DialogFooter>
               <DialogClose asChild>
@@ -348,5 +335,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-
-    

@@ -33,9 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to parse user from localStorage', error);
       localStorage.removeItem('divine-glow-user');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }, []);
 
   const login = useCallback((userData: User, password?: string) => {
@@ -55,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('divine-glow-user');
     setUser(null);
   }, []);
+
+  if (loading) {
+    return null; 
+  }
 
   return (
     <AuthContext.Provider

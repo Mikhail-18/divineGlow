@@ -103,10 +103,11 @@ export default function OrdersPage() {
                 <TableHead><span className="sr-only">Acciones</span></TableHead>
               </TableRow>
             </TableHeader>
-            {orders.map((order) => (
-              <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)} tagName="tbody">
+            <TableBody>
+              {orders.map((order) => (
+                <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)}>
                   <>
-                    <TableRow className="cursor-pointer border-b-0">
+                    <TableRow className="cursor-pointer">
                       <TableCell>
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -230,8 +231,9 @@ export default function OrdersPage() {
                        </TableRow>
                     </CollapsibleContent>
                   </>
-              </Collapsible>
-            ))}
+                </Collapsible>
+              ))}
+            </TableBody>
           </Table>
         </CardContent>
       </Card>
