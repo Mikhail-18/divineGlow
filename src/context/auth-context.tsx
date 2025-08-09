@@ -8,7 +8,7 @@ import { sellers as initialSellers } from '@/lib/data';
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (userData: Omit<User, 'name'> & { name?: string }, password?: string, sellerId?: string) => boolean;
+  login: (userData: User, password?: string) => boolean;
   logout: () => void;
   loading: boolean;
 }
@@ -50,31 +50,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = useCallback((userData: Omit<User, 'name'> & { name?: string }, password?: string, sellerId?: string) => {
+  const login = useCallback((userData: User, password?: string) => {
     let isAuthenticated = false;
     let userToAuthenticate: User | null = null;
 
     if (!password) {
-       if (user) {
+      if (user) {
         isAuthenticated = true;
         userToAuthenticate = user;
-       }
+      }
     } else if (userData.role === 'seller') {
-        const seller = sellers.find(s => s.id === sellerId);
-        if (seller && seller.password === password) {
-            isAuthenticated = true;
-            userToAuthenticate = { name: seller.name, role: 'seller' };
-        }
+      // For sellers, userData.name is actually the sellerId from the login page
+      const seller = sellers.find(s => s.id === userData.name);
+      if (seller && seller.password === password) {
+          isAuthenticated = true;
+          // The actual user to log in has the seller's name, not their ID
+          userToAuthenticate = { name: seller.name, role: 'seller' };
+      }
     } else {
-        const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
-        if (staticPassword && staticPassword === password) {
-            isAuthenticated = true;
-             let userName = 'Usuario';
-            if (userData.role === 'admin') userName = 'Admin';
-            if (userData.role === 'warehouse') userName = 'Almacenero';
-            if (userData.role === 'cajero') userName = 'Cajero';
-            userToAuthenticate = { name: userName, role: userData.role };
-        }
+      // For other roles, check against static passwords
+      const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
+      if (staticPassword && staticPassword === password) {
+          isAuthenticated = true;
+          userToAuthenticate = userData; // The user data is already correct
+      }
     }
     
     if (isAuthenticated && userToAuthenticate) {
@@ -86,90 +85,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   }, [user, sellers]);
 
+
   const logout = useCallback(() => {
     localStorage.removeItem('divine-glow-user');
     setUser(null);
   }, []);
-
-  const updatedLogin = (
-    userData: Omit<User, 'name'> & { name?: string },
-    password?: string,
-    sellerId?: string
-  ): boolean => {
-    let isAuthenticated = false;
-    let userToAuthenticate: User | null = null;
   
-    if (!password) {
-      // This allows re-login from session without password
-      if (user) {
-        isAuthenticated = true;
-        userToAuthenticate = user;
-      }
-    } else if (userData.role === 'seller') {
-      const seller = sellers.find(s => s.id === sellerId);
-      if (seller && seller.password === password) {
-        isAuthenticated = true;
-        userToAuthenticate = { name: seller.name, role: 'seller' };
-      }
-    } else {
-      // For other roles, check against static passwords
-      const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
-      if (staticPassword && staticPassword === password) {
-        isAuthenticated = true;
-        let userName = 'Usuario';
-        if (userData.role === 'admin') userName = 'Admin';
-        if (userData.role === 'warehouse') userName = 'Almacenero';
-        if (userData.role === 'cajero') userName = 'Cajero';
-        userToAuthenticate = { name: userName, role: userData.role };
-      }
-    }
-  
-    if (isAuthenticated && userToAuthenticate) {
-      localStorage.setItem('divine-glow-user', JSON.stringify(userToAuthenticate));
-      setUser(userToAuthenticate);
-      return true;
-    }
-  
-    return false;
-  };
-  
-  const finalLogin = (
-    userData: User,
-    password?: string,
-    sellerId?: string
-  ) => {
-    let isAuthenticated = false;
-
-    if (!password) {
-      if (user) isAuthenticated = true;
-    } else if (userData.role === 'seller' && sellerId) {
-      const seller = sellers.find(s => s.id === sellerId);
-      if (seller && seller.password === password) {
-        isAuthenticated = true;
-      }
-    } else if (userData.role !== 'seller') {
-      const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
-      if (staticPassword && staticPassword === password) {
-        isAuthenticated = true;
-      }
-    }
-
-    if (isAuthenticated) {
-      const userToSet = userData.role === 'seller' 
-        ? sellers.find(s => s.id === sellerId)! 
-        : userData;
-      
-      const finalUser = {name: userToSet.name, role: userData.role };
-
-      localStorage.setItem('divine-glow-user', JSON.stringify(finalUser));
-      setUser(finalUser);
-    }
-    return isAuthenticated;
-  }
-
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login: finalLogin, logout, loading }}
+      value={{ user, isAuthenticated: !!user, login, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

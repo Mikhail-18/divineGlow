@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import type { UserRole, Seller } from '@/lib/types';
+import type { UserRole, Seller, User } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { KeyRound, User, Warehouse, LogIn, DollarSign } from 'lucide-react';
+import { KeyRound, User as UserIcon, Warehouse, LogIn, DollarSign } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useToast } from '@/hooks/use-toast';
 import { sellers as initialSellers } from '@/lib/data';
@@ -55,19 +55,15 @@ export default function LoginPage() {
       return;
     }
     
-    let userToLogin: { name: string, role: UserRole };
+    let userToLogin: User;
     
     if (selectedRole === 'seller') {
       if (!selectedSellerId) {
         toast({ title: 'Error', description: 'Por favor, selecciona un vendedor.', variant: 'destructive' });
         return;
       }
-      const seller = sellers.find(s => s.id === selectedSellerId);
-      if (!seller) {
-        toast({ title: 'Error', description: 'Vendedor no encontrado.', variant: 'destructive' });
-        return;
-      }
-      userToLogin = { name: seller.name, role: selectedRole };
+      // For sellers, we pass the ID in the 'name' field, the auth context will resolve the actual name.
+      userToLogin = { name: selectedSellerId, role: selectedRole };
     } else {
         let userName = 'Usuario';
         if (selectedRole === 'admin') userName = 'Admin';
@@ -95,7 +91,7 @@ export default function LoginPage() {
 
   const roleIcons: Record<UserRole, React.ElementType> = {
     admin: KeyRound,
-    seller: User,
+    seller: UserIcon,
     warehouse: Warehouse,
     cajero: DollarSign
   };
@@ -185,7 +181,7 @@ export default function LoginPage() {
                     <KeyRound className="mr-2 h-5 w-5" /> Entrar como Administrador
                   </Button>
                    <Button onClick={() => handleRoleSelect('seller')} size="lg" className="w-full" variant="outline">
-                    <User className="mr-2 h-5 w-5" /> Entrar como Vendedor
+                    <UserIcon className="mr-2 h-5 w-5" /> Entrar como Vendedor
                   </Button>
                    <Button onClick={() => handleRoleSelect('cajero')} size="lg" className="w-full" variant="outline">
                     <DollarSign className="mr-2 h-5 w-5" /> Entrar como Cajero
