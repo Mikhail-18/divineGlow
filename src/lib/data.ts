@@ -85,6 +85,15 @@ export const customers: Customer[] = [
     lastOrderDate: '2024-05-22',
     totalSpent: 45.0,
   },
+    {
+    id: 'cust-005',
+    name: 'Cliente Mostrador',
+    email: 'mostrador@example.com',
+    phone: '000000000',
+    avatarUrl: 'https://placehold.co/100x100.png',
+    lastOrderDate: '',
+    totalSpent: 0,
+  },
 ];
 
 export const orders: Order[] = [

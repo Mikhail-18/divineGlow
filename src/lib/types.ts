@@ -25,7 +25,7 @@ export type Customer = {
   totalSpent: number;
 };
 
-export type OrderStatus = 'Pendiente' | 'Enviado' | 'Entregado' | 'Cancelado';
+export type OrderStatus = 'Pendiente' | 'Pagado' | 'Enviado' | 'Entregado' | 'Cancelado';
 
 export type OrderItem = {
   productId: string;

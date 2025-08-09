@@ -10,6 +10,7 @@ import {
   Users,
   ShoppingCart,
   LogOut,
+  PlusSquare,
 } from 'lucide-react';
 
 import {
@@ -51,9 +52,10 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'seller', 'warehouse'] },
+    { href: '/dashboard/pos', label: 'Punto de Venta', icon: PlusSquare, roles: ['admin', 'seller'] },
     { href: '/dashboard/products', label: 'Productos', icon: Package, roles: ['admin', 'seller', 'warehouse'] },
     { href: '/dashboard/customers', label: 'Clientes', icon: Users, roles: ['admin', 'seller'] },
-    { href: '/dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse'] },
+    { href: ' /dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse'] },
   ];
 
   if (loading || !isAuthenticated) {

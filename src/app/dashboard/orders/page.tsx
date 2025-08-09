@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Truck, ChevronDown, ChevronRight } from 'lucide-react';
+import { Truck, CheckCircle, ChevronDown, ChevronRight } from 'lucide-react';
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -16,10 +16,10 @@ export default function OrdersPage() {
   const { user } = useAuth();
   const [openOrderId, setOpenOrderId] = React.useState<string | null>(null);
 
-  const handleMarkAsShipped = (orderId: string) => {
+  const handleUpdateStatus = (orderId: string, status: Order['status']) => {
     setOrders(currentOrders =>
       currentOrders.map(order =>
-        order.id === orderId ? { ...order, status: 'Enviado' } : order
+        order.id === orderId ? { ...order, status } : order
       )
     );
   };
@@ -27,6 +27,7 @@ export default function OrdersPage() {
   const getStatusVariant = (status: Order['status']) => {
     switch (status) {
       case 'Pendiente': return 'default';
+      case 'Pagado': return 'secondary';
       case 'Enviado': return 'secondary';
       case 'Entregado': return 'outline';
       case 'Cancelado': return 'destructive';
@@ -37,6 +38,9 @@ export default function OrdersPage() {
   const toggleOrderDetails = (orderId: string) => {
     setOpenOrderId(prevId => (prevId === orderId ? null : orderId));
   };
+  
+  const canMarkAsShipped = user?.role === 'admin' || user?.role === 'warehouse';
+  const canMarkAsPaid = user?.role === 'admin' || user?.role === 'seller';
 
   return (
     <div className="flex flex-col gap-6">
@@ -55,7 +59,7 @@ export default function OrdersPage() {
                 <TableHead>Fecha</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Total</TableHead>
-                {user?.role === 'warehouse' && <TableHead><span className="sr-only">Acciones</span></TableHead>}
+                <TableHead><span className="sr-only">Acciones</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -86,27 +90,40 @@ export default function OrdersPage() {
                         <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                       </TableCell>
                       <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
-                      {user?.role === 'warehouse' && (
-                        <TableCell className="text-right">
-                          {order.status === 'Pendiente' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleMarkAsShipped(order.id);
-                              }}
-                            >
-                              <Truck className="mr-2 h-4 w-4" />
-                              Marcar como Enviado
-                            </Button>
-                          )}
+                      <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            {canMarkAsPaid && order.status === 'Pendiente' && (
+                                <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(order.id, 'Pagado');
+                                }}
+                                >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Marcar como Pagado
+                                </Button>
+                            )}
+                            {canMarkAsShipped && (order.status === 'Pagado' || order.status === 'Pendiente') && (
+                                <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(order.id, 'Enviado');
+                                }}
+                                >
+                                <Truck className="mr-2 h-4 w-4" />
+                                Marcar como Enviado
+                                </Button>
+                            )}
+                          </div>
                         </TableCell>
-                      )}
                     </TableRow>
                     <CollapsibleContent asChild>
                        <TableRow>
-                          <TableCell colSpan={user?.role === 'warehouse' ? 7 : 6} className="p-0">
+                          <TableCell colSpan={7} className="p-0">
                                <div className="p-4 bg-muted/50">
                                 <h4 className="font-semibold mb-2">Detalles del Pedido:</h4>
                                 <Table>
