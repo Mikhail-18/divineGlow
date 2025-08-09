@@ -299,8 +299,8 @@ export default function POSPage() {
         <Card className="flex-1 flex flex-col">
           <CardHeader>
             <CardTitle>Pedido Actual</CardTitle>
-            <CardDescription asChild>
-                <div className="space-y-2">
+            <CardDescription>
+                <div className="space-y-2 pt-4">
                     <Label htmlFor="customer-select">Cliente</Label>
                     <div className="flex gap-2">
                     <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
