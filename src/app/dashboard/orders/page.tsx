@@ -99,10 +99,9 @@ export default function OrdersPage() {
                 <TableHead><span className="sr-only">Acciones</span></TableHead>
               </TableRow>
             </TableHeader>
-            
-              {orders.map((order) => (
-                <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)} tagName="tbody">
-                  <>
+            {orders.map((order) => (
+              <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)} tagName="tbody">
+                  <React.Fragment>
                     <TableRow className="cursor-pointer border-b-0">
                       <TableCell>
                         <CollapsibleTrigger asChild>
@@ -226,15 +225,12 @@ export default function OrdersPage() {
                           </TableCell>
                        </TableRow>
                     </CollapsibleContent>
-                  </>
-                </Collapsible>
-              ))}
-            
+                  </React.Fragment>
+              </Collapsible>
+            ))}
           </Table>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    
