@@ -129,7 +129,7 @@ export default function OrdersPage() {
                                 Procesar Pago
                                 </Button>
                             )}
-                            {canMarkAsShipped && (order.status === 'Pagado' || order.status === 'Pendiente') && (
+                            {canMarkAsShipped && order.status === 'Pagado' && (
                                 <Button
                                 variant="outline"
                                 size="sm"
