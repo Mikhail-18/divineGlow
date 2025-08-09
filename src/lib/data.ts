@@ -1,4 +1,5 @@
-import type { Product, Customer, Order } from './types';
+
+import type { Product, Customer, Order, Seller } from './types';
 
 export const products: Product[] = [
   {
@@ -154,4 +155,9 @@ export const orders: Order[] = [
     ],
     total: 60.0,
   }
+];
+
+export const sellers: Seller[] = [
+    { id: 'seller-1', name: 'Vendedor 1', password: 'password123' },
+    { id: 'seller-2', name: 'Vendedor 2', password: 'password456' }
 ];

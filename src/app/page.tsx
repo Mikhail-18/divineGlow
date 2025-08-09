@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import type { UserRole } from '@/lib/types';
+import type { UserRole, Seller } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
@@ -11,21 +11,42 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { KeyRound, User, Warehouse, LogIn, DollarSign } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useToast } from '@/hooks/use-toast';
+import { sellers as initialSellers } from '@/lib/data';
+
+const SELLERS_STORAGE_KEY = 'divine-glow-sellers';
 
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = React.useState<UserRole | null>(null);
+  const [selectedSellerId, setSelectedSellerId] = React.useState<string>('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
+  const [sellers, setSellers] = React.useState<Seller[]>([]);
+
+  React.useEffect(() => {
+    try {
+      const storedSellers = localStorage.getItem(SELLERS_STORAGE_KEY);
+      if (storedSellers) {
+        setSellers(JSON.parse(storedSellers));
+      } else {
+        setSellers(initialSellers);
+      }
+    } catch (error) {
+      console.error('Failed to parse sellers from localStorage', error);
+      setSellers(initialSellers);
+    }
+  }, []);
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
     setPassword('');
+    setSelectedSellerId('');
   };
 
   const handleLogin = () => {
@@ -33,18 +54,38 @@ export default function LoginPage() {
       toast({ title: 'Error', description: 'Por favor, selecciona un rol.', variant: 'destructive' });
       return;
     }
+    
+    let userName = 'Usuario';
+    let userToLogin = { name: userName, role: selectedRole };
+    
+    if (selectedRole === 'seller') {
+      if (!selectedSellerId) {
+        toast({ title: 'Error', description: 'Por favor, selecciona un vendedor.', variant: 'destructive' });
+        return;
+      }
+      const seller = sellers.find(s => s.id === selectedSellerId);
+      if (!seller) {
+        toast({ title: 'Error', description: 'Vendedor no encontrado.', variant: 'destructive' });
+        return;
+      }
+      userName = seller.name;
+      userToLogin = { name: userName, role: selectedRole };
+
+    } else {
+        if (selectedRole === 'admin') userName = 'Admin';
+        if (selectedRole === 'warehouse') userName = 'Almacenero';
+        if (selectedRole === 'cajero') userName = 'Cajero';
+        userToLogin = { name: userName, role: selectedRole };
+    }
+
     if (!password) {
       toast({ title: 'Error', description: 'Por favor, introduce la contraseña.', variant: 'destructive' });
       return;
     }
-    setLoading(true);
-    let userName = 'Usuario';
-    if (selectedRole === 'admin') userName = 'Admin';
-    if (selectedRole === 'seller') userName = 'Vendedor';
-    if (selectedRole === 'warehouse') userName = 'Almacenero';
-    if (selectedRole === 'cajero') userName = 'Cajero';
 
-    const isAuthenticated = login({ name: userName, role: selectedRole }, password);
+    setLoading(true);
+
+    const isAuthenticated = login(userToLogin, password, selectedSellerId);
 
     if (isAuthenticated) {
       router.push('/dashboard');
@@ -66,6 +107,59 @@ export default function LoginPage() {
       seller: 'Vendedor',
       warehouse: 'Almacenero',
       cajero: 'Cajero'
+  }
+  
+  const renderLoginScreen = () => {
+      const roleName = roleNames[selectedRole!];
+      const Icon = roleIcons[selectedRole!];
+
+      return (
+        <div className="space-y-4">
+            <div className="flex items-center gap-4 p-4 rounded-md bg-muted/50">
+                {React.createElement(Icon, { className: "h-8 w-8 text-primary" })}
+                <div>
+                    <p className="text-sm text-muted-foreground">Iniciando sesión como</p>
+                    <h3 className="font-semibold text-lg">{roleName}</h3>
+                </div>
+            </div>
+
+            {selectedRole === 'seller' && (
+              <div className="space-y-2">
+                <Label htmlFor="seller-select">Vendedor</Label>
+                <Select value={selectedSellerId} onValueChange={setSelectedSellerId}>
+                  <SelectTrigger id="seller-select">
+                    <SelectValue placeholder="Selecciona un vendedor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sellers.map(seller => (
+                      <SelectItem key={seller.id} value={seller.id}>{seller.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="space-y-2">
+                <Label htmlFor="password">Contraseña</Label>
+                <Input 
+                    id="password" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                    placeholder="Introduce tu contraseña" 
+                    autoFocus
+                />
+            </div>
+            <Button onClick={handleLogin} disabled={loading} className="w-full" size="lg">
+                <LogIn className="mr-2 h-5 w-5" />
+                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            </Button>
+            <Button variant="link" onClick={() => setSelectedRole(null)} className="w-full">
+                Volver a seleccionar rol
+            </Button>
+        </div>
+      )
   }
 
   return (
@@ -103,36 +197,7 @@ export default function LoginPage() {
                   </Button>
                 </div>
               </div>
-            ) : (
-                <div className="space-y-4">
-                    <div className="flex items-center gap-4 p-4 rounded-md bg-muted/50">
-                        {React.createElement(roleIcons[selectedRole], { className: "h-8 w-8 text-primary" })}
-                        <div>
-                            <p className="text-sm text-muted-foreground">Iniciando sesión como</p>
-                            <h3 className="font-semibold text-lg">{roleNames[selectedRole]}</h3>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Contraseña</Label>
-                        <Input 
-                            id="password" 
-                            type="password" 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                            placeholder="Introduce tu contraseña" 
-                            autoFocus
-                        />
-                    </div>
-                    <Button onClick={handleLogin} disabled={loading} className="w-full" size="lg">
-                        <LogIn className="mr-2 h-5 w-5" />
-                        {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                    </Button>
-                    <Button variant="link" onClick={() => setSelectedRole(null)} className="w-full">
-                        Volver a seleccionar rol
-                    </Button>
-                </div>
-            )}
+            ) : renderLoginScreen()}
           </CardContent>
         </Card>
       </div>

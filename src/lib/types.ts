@@ -1,3 +1,4 @@
+
 export type UserRole = 'admin' | 'seller' | 'warehouse' | 'cajero';
 
 export type User = {
@@ -44,4 +45,10 @@ export type Order = {
   items: OrderItem[];
   total: number;
   paymentMethod?: PaymentMethod;
+};
+
+export type Seller = {
+  id: string;
+  name: string;
+  password?: string;
 };
