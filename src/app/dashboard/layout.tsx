@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   LogOut,
   PlusSquare,
+  FileBox,
 } from 'lucide-react';
 
 import {
@@ -57,6 +58,7 @@ export default function DashboardLayout({
     { href: '/dashboard/products', label: 'Productos', icon: Package, roles: ['admin', 'seller', 'warehouse'] },
     { href: '/dashboard/customers', label: 'Clientes', icon: Users, roles: ['admin', 'seller'] },
     { href: '/dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse', 'cajero'] },
+    { href: '/dashboard/cash-closing', label: 'Cierre de Caja', icon: FileBox, roles: ['admin', 'cajero'] },
   ];
 
   if (loading || !isAuthenticated) {

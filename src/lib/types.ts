@@ -26,6 +26,7 @@ export type Customer = {
 };
 
 export type OrderStatus = 'Pendiente' | 'Pagado' | 'Enviado' | 'Entregado' | 'Cancelado';
+export type PaymentMethod = 'Efectivo' | 'Tarjeta' | 'Yape' | 'Plin';
 
 export type OrderItem = {
   productId: string;
@@ -42,4 +43,5 @@ export type Order = {
   status: OrderStatus;
   items: OrderItem[];
   total: number;
+  paymentMethod?: PaymentMethod;
 };

@@ -80,7 +80,7 @@ export default function CheckoutPage() {
     const [order, setOrder] = useState<Order | null>(null);
     const [splitOption, setSplitOption] = useState('none');
     const [numberOfPeople, setNumberOfPeople] = useState(2);
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'Efectivo' | 'Tarjeta' | 'Yape' | 'Plin'>('Efectivo');
     const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
     useEffect(() => {
@@ -108,7 +108,7 @@ export default function CheckoutPage() {
             if (storedOrders) {
                 let parsedOrders: Order[] = JSON.parse(storedOrders);
                 parsedOrders = parsedOrders.map(o => 
-                    o.id === orderId ? { ...o, status: 'Pagado' } : o
+                    o.id === orderId ? { ...o, status: 'Pagado', paymentMethod: selectedPaymentMethod } : o
                 );
                 localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(parsedOrders));
                 setIsReceiptOpen(true);
@@ -223,16 +223,16 @@ export default function CheckoutPage() {
                         <div>
                             <Label className="font-semibold">Método de Pago</Label>
                              <div className="grid grid-cols-2 gap-4 mt-2">
-                                <Button variant={selectedPaymentMethod === 'cash' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('cash')} className="h-20 flex-col gap-2">
+                                <Button variant={selectedPaymentMethod === 'Efectivo' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('Efectivo')} className="h-20 flex-col gap-2">
                                     <Landmark/> Efectivo
                                 </Button>
-                                <Button variant={selectedPaymentMethod === 'card' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('card')} className="h-20 flex-col gap-2">
+                                <Button variant={selectedPaymentMethod === 'Tarjeta' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('Tarjeta')} className="h-20 flex-col gap-2">
                                     <CreditCard/> Tarjeta
                                 </Button>
-                                 <Button variant={selectedPaymentMethod === 'yape' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('yape')} className="h-20 flex-col gap-2">
+                                 <Button variant={selectedPaymentMethod === 'Yape' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('Yape')} className="h-20 flex-col gap-2">
                                     <Smartphone/> Yape
                                 </Button>
-                                <Button variant={selectedPaymentMethod === 'plin' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('plin')} className="h-20 flex-col gap-2">
+                                <Button variant={selectedPaymentMethod === 'Plin' ? 'default' : 'outline'} onClick={() => setSelectedPaymentMethod('Plin')} className="h-20 flex-col gap-2">
                                     <Smartphone/> Plin
                                 </Button>
                             </div>
