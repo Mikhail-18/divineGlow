@@ -44,7 +44,7 @@ const ReceiptDialog = ({ isOpen, onClose, order }: { isOpen: boolean, onClose: (
                              {order.items.map(item => (
                                 <div key={item.productId} className="flex justify-between items-center text-sm">
                                     <span>{item.productName} x{item.quantity}</span>
-                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                    <span>S/{(item.price * item.quantity).toFixed(2)}</span>
                                 </div>
                             ))}
                         </CardContent>
@@ -52,7 +52,7 @@ const ReceiptDialog = ({ isOpen, onClose, order }: { isOpen: boolean, onClose: (
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
                         <p>Total:</p>
-                        <p>${order.total.toFixed(2)}</p>
+                        <p>S/{order.total.toFixed(2)}</p>
                     </div>
                      <p className="text-xs text-center text-muted-foreground">Pagado. ¡Vuelva pronto!</p>
                 </div>
@@ -169,13 +169,13 @@ export default function CheckoutPage() {
                                     <p className="font-medium">{item.productName} x{item.quantity}</p>
                                     {/* <p className="text-sm text-muted-foreground">Nota: Alguna nota</p> */}
                                 </div>
-                                <p>${(item.price * item.quantity).toFixed(2)}</p>
+                                <p>S/{(item.price * item.quantity).toFixed(2)}</p>
                             </div>
                         ))}
                         <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <p>Total:</p>
-                            <p>${order.total.toFixed(2)}</p>
+                            <p>S/{order.total.toFixed(2)}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -217,7 +217,7 @@ export default function CheckoutPage() {
 
                         <div className="text-center bg-muted p-4 rounded-lg">
                             <p className="text-sm text-muted-foreground">Total a pagar {splitOption === 'equal' ? '(por persona)' : ''}</p>
-                            <p className="text-4xl font-bold text-primary">${totalPerPerson.toFixed(2)}</p>
+                            <p className="text-4xl font-bold text-primary">S/{totalPerPerson.toFixed(2)}</p>
                         </div>
 
                         <div>

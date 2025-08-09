@@ -228,7 +228,7 @@ export default function POSPage() {
     
     toast({
       title: "Pedido Creado",
-      description: `Pedido para ${customer.name} por un total de $${cartTotal.toFixed(2)} ha sido creado.`,
+      description: `Pedido para ${customer.name} por un total de S/${cartTotal.toFixed(2)} ha sido creado.`,
     });
 
     setCart([]);
@@ -276,7 +276,7 @@ export default function POSPage() {
                         />
                         <div className="p-2">
                            <h3 className="font-semibold text-sm truncate">{product.name}</h3>
-                           <p className="text-xs text-muted-foreground">${product.price.toFixed(2)}</p>
+                           <p className="text-xs text-muted-foreground">S/{product.price.toFixed(2)}</p>
                            <p className={`text-xs ${product.stock > 0 ? 'text-muted-foreground' : 'text-destructive'}`}>
                                 Stock: {product.stock}
                            </p>
@@ -367,7 +367,7 @@ export default function POSPage() {
                         </TableCell>
                         <TableCell>
                            <p className="font-medium text-sm">{item.productName}</p>
-                           <p className="text-xs text-muted-foreground">${item.price.toFixed(2)}</p>
+                           <p className="text-xs text-muted-foreground">S/{item.price.toFixed(2)}</p>
                         </TableCell>
                         <TableCell>
                           <Input
@@ -378,7 +378,7 @@ export default function POSPage() {
                             min="1"
                           />
                         </TableCell>
-                        <TableCell className="font-medium text-right">${(item.price * item.quantity).toFixed(2)}</TableCell>
+                        <TableCell className="font-medium text-right">S/{(item.price * item.quantity).toFixed(2)}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="icon" onClick={() => handleRemoveFromCart(item.productId)}>
                             <X className="h-4 w-4" />
@@ -398,7 +398,7 @@ export default function POSPage() {
           <CardFooter className="flex flex-col gap-4 mt-auto p-4 border-t">
             <div className="flex justify-between w-full text-lg font-bold">
               <span>Total</span>
-              <span>${cartTotal.toFixed(2)}</span>
+              <span>S/{cartTotal.toFixed(2)}</span>
             </div>
             <Button className="w-full" size="lg" onClick={handleCreateOrder}>
               Crear Pedido

@@ -183,7 +183,7 @@ export default function CustomersPage() {
                   <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
                   <TableCell className="hidden sm:table-cell">{customer.phone}</TableCell>
                   <TableCell className="hidden md:table-cell">{customer.lastOrderDate}</TableCell>
-                  <TableCell className="text-right">${customer.totalSpent.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">S/{customer.totalSpent.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                      <AlertDialog>
                         <DropdownMenu>

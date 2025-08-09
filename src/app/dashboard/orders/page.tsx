@@ -130,7 +130,7 @@ export default function OrdersPage() {
                             <TableCell>
                             <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                             </TableCell>
-                            <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">S/{order.total.toFixed(2)}</TableCell>
                             <TableCell className="text-right">
                                 <div className="flex justify-end gap-2">
                                 {canProcessPayment && order.status === 'Pendiente' && (
@@ -221,7 +221,7 @@ export default function OrdersPage() {
                                             <TableRow key={item.productId}>
                                             <TableCell>{item.productName}</TableCell>
                                             <TableCell className="text-right">{item.quantity}</TableCell>
-                                            <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                                            <TableCell className="text-right">S/{item.price.toFixed(2)}</TableCell>
                                             </TableRow>
                                         ))}
                                         </TableBody>

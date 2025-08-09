@@ -127,7 +127,7 @@ export default function DashboardPage() {
                       <TableCell>
                         <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                       </TableCell>
-                      <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">S/{order.total.toFixed(2)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
