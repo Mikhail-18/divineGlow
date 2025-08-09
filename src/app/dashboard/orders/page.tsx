@@ -1,3 +1,4 @@
+
 'use client';
 import { orders as initialOrders } from '@/lib/data';
 import type { Order } from '@/lib/types';
@@ -98,11 +99,11 @@ export default function OrdersPage() {
                 <TableHead><span className="sr-only">Acciones</span></TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
+            
               {orders.map((order) => (
-                <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)}>
-                  <React.Fragment>
-                    <TableRow className="cursor-pointer">
+                <Collapsible asChild key={order.id} open={openOrderId === order.id} onOpenChange={() => toggleOrderDetails(order.id)} tagName="tbody">
+                  <>
+                    <TableRow className="cursor-pointer border-b-0">
                       <TableCell>
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -225,13 +226,15 @@ export default function OrdersPage() {
                           </TableCell>
                        </TableRow>
                     </CollapsibleContent>
-                  </React.Fragment>
+                  </>
                 </Collapsible>
               ))}
-            </TableBody>
+            
           </Table>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+    
