@@ -6,11 +6,22 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Truck, CheckCircle, ChevronDown, ChevronRight, CreditCard } from 'lucide-react';
+import { Truck, CheckCircle, ChevronDown, ChevronRight, CreditCard, XCircle } from 'lucide-react';
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const ORDERS_STORAGE_KEY = 'divine-hub-orders';
 
@@ -65,6 +76,7 @@ export default function OrdersPage() {
   
   const canMarkAsShipped = user?.role === 'admin' || user?.role === 'warehouse';
   const canProcessPayment = user?.role === 'admin' || user?.role === 'cajero';
+  const canCancelOrder = user?.role === 'admin' || user?.role === 'seller';
 
   return (
     <div className="flex flex-col gap-6">
@@ -154,6 +166,34 @@ export default function OrdersPage() {
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Marcar como Entregado
                                 </Button>
+                            )}
+                            {canCancelOrder && order.status === 'Pendiente' && (
+                                 <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <XCircle className="mr-2 h-4 w-4" />
+                                            Cancelar Pedido
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Esta acción no se puede deshacer. El pedido será marcado como cancelado.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>No</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleUpdateStatus(order.id, 'Cancelado')}>
+                                               Sí, cancelar
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             )}
                           </div>
                         </TableCell>
