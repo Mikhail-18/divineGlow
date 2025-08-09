@@ -142,6 +142,19 @@ export default function OrdersPage() {
                                 Marcar como Enviado
                                 </Button>
                             )}
+                             {canMarkAsShipped && order.status === 'Enviado' && (
+                                <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(order.id, 'Entregado');
+                                }}
+                                >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Marcar como Entregado
+                                </Button>
+                            )}
                           </div>
                         </TableCell>
                     </TableRow>
