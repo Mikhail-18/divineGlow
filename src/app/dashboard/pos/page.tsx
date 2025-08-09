@@ -25,12 +25,13 @@ import {
 
 type CartItem = OrderItem & { image: string };
 
+const PRODUCTS_STORAGE_KEY = 'divine-hub-products';
 const CUSTOMERS_STORAGE_KEY = 'divine-hub-customers';
 const ORDERS_STORAGE_KEY = 'divine-hub-orders';
 
 export default function POSPage() {
   const { toast } = useToast();
-  const [products, setProducts] = useState<Product[]>(allProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -45,6 +46,15 @@ export default function POSPage() {
 
   useEffect(() => {
     try {
+      // Load Products
+      const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      if (storedProducts) {
+        setProducts(JSON.parse(storedProducts));
+      } else {
+        setProducts(allProducts);
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(allProducts));
+      }
+
       // Load Customers
       const storedCustomers = localStorage.getItem(CUSTOMERS_STORAGE_KEY);
       const parsedCustomers = storedCustomers ? JSON.parse(storedCustomers) : initialCustomers;
@@ -67,10 +77,16 @@ export default function POSPage() {
 
     } catch (error) {
       console.error('Failed to parse data from localStorage', error);
+      setProducts(allProducts);
       setCustomers(initialCustomers);
       setOrders(initialOrders);
     }
   }, []);
+
+  const updateProducts = (updatedProducts: Product[]) => {
+    setProducts(updatedProducts);
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
+  };
 
   const updateCustomers = (updatedCustomers: Customer[]) => {
     setCustomers(updatedCustomers);
@@ -120,13 +136,23 @@ export default function POSPage() {
     setCart(currentCart => {
       const existingItem = currentCart.find(item => item.productId === product.id);
       if (existingItem) {
-        return currentCart.map(item =>
-          item.productId === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
+        if (existingItem.quantity < product.stock) {
+           return currentCart.map(item =>
+            item.productId === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          );
+        } else {
+            toast({ title: "Stock insuficiente", description: `No puedes añadir más de ${product.name}.`, variant: "destructive" });
+            return currentCart;
+        }
       }
-      return [...currentCart, { productId: product.id, productName: product.name, price: product.price, quantity: 1, image: product.image }];
+      if (product.stock > 0) {
+        return [...currentCart, { productId: product.id, productName: product.name, price: product.price, quantity: 1, image: product.image }];
+      } else {
+        toast({ title: "Sin stock", description: `${product.name} está agotado.`, variant: "destructive" });
+        return currentCart;
+      }
     });
   };
 
@@ -135,10 +161,19 @@ export default function POSPage() {
   };
 
   const handleQuantityChange = (productId: string, quantity: number) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    if (quantity > product.stock) {
+        toast({ title: "Stock insuficiente", description: `Solo quedan ${product.stock} unidades de ${product.name}.`, variant: "destructive" });
+        quantity = product.stock;
+    }
+
     if (quantity < 1) {
       handleRemoveFromCart(productId);
       return;
     }
+
     setCart(currentCart =>
       currentCart.map(item =>
         item.productId === productId ? { ...item, quantity } : item
@@ -158,6 +193,25 @@ export default function POSPage() {
         toast({ title: "Error", description: "Por favor, selecciona un cliente.", variant: "destructive" });
         return;
     }
+    
+    // Check stock for all items
+    for (const item of cart) {
+        const product = products.find(p => p.id === item.productId);
+        if (!product || item.quantity > product.stock) {
+            toast({ title: "Stock insuficiente", description: `No hay suficiente stock para ${item.productName}.`, variant: "destructive" });
+            return;
+        }
+    }
+
+    // Update product stock
+    const updatedProducts = products.map(p => {
+        const cartItem = cart.find(item => item.productId === p.id);
+        if (cartItem) {
+            return { ...p, stock: p.stock - cartItem.quantity };
+        }
+        return p;
+    });
+    updateProducts(updatedProducts);
     
     const newOrder: Order = {
         id: `ord-${Date.now()}`,
@@ -222,11 +276,14 @@ export default function POSPage() {
                         <div className="p-2">
                            <h3 className="font-semibold text-sm truncate">{product.name}</h3>
                            <p className="text-xs text-muted-foreground">${product.price.toFixed(2)}</p>
+                           <p className={`text-xs ${product.stock > 0 ? 'text-muted-foreground' : 'text-destructive'}`}>
+                                Stock: {product.stock}
+                           </p>
                         </div>
                        </CardContent>
                        <CardFooter className="p-2">
-                        <Button size="sm" className="w-full" onClick={() => handleAddToCart(product)}>
-                            <PlusCircle className="mr-2 h-4 w-4"/> Añadir
+                        <Button size="sm" className="w-full" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
+                            <PlusCircle className="mr-2 h-4 w-4"/> {product.stock > 0 ? 'Añadir' : 'Agotado'}
                         </Button>
                        </CardFooter>
                     </Card>

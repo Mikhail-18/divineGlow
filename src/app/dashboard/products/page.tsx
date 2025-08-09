@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import {
   Dialog,
@@ -40,21 +40,44 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
+const PRODUCTS_STORAGE_KEY = 'divine-hub-products';
+
 export default function ProductsPage() {
-  const [products, setProducts] = React.useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const { user } = useAuth();
   
-  const [isAddProductDialogOpen, setIsAddProductDialogOpen] = React.useState(false);
-  const [isEditProductDialogOpen, setIsEditProductDialogOpen] = React.useState(false);
+  const [isAddProductDialogOpen, setIsAddProductDialogOpen] = useState(false);
+  const [isEditProductDialogOpen, setIsEditProductDialogOpen] = useState(false);
 
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const [newProduct, setNewProduct] = React.useState({
+  const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
     price: '',
     stock: '',
   });
+  
+  useEffect(() => {
+    try {
+      const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      if (storedProducts) {
+        setProducts(JSON.parse(storedProducts));
+      } else {
+        setProducts(initialProducts);
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(initialProducts));
+      }
+    } catch (error) {
+      console.error('Failed to parse products from localStorage', error);
+      setProducts(initialProducts);
+    }
+  }, []);
+
+  const updateProducts = (updatedProducts: Product[]) => {
+    setProducts(updatedProducts);
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(updatedProducts));
+  };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -79,7 +102,7 @@ export default function ProductsPage() {
         lowStockThreshold: 10, // Default value
         image: 'https://placehold.co/400x400.png', // Default placeholder
       };
-      setProducts(prev => [productToAdd, ...prev]);
+      updateProducts([productToAdd, ...products]);
       setNewProduct({ name: '', description: '', price: '', stock: '' });
       setIsAddProductDialogOpen(false);
     } else {
@@ -94,14 +117,16 @@ export default function ProductsPage() {
             price: typeof selectedProduct.price === 'string' ? parseFloat(selectedProduct.price) : selectedProduct.price,
             stock: typeof selectedProduct.stock === 'string' ? parseInt(selectedProduct.stock, 10) : selectedProduct.stock,
         };
-      setProducts(prev => prev.map(p => p.id === productToUpdate.id ? productToUpdate : p));
+      const updatedProducts = products.map(p => p.id === productToUpdate.id ? productToUpdate : p)
+      updateProducts(updatedProducts);
       setIsEditProductDialogOpen(false);
       setSelectedProduct(null);
     }
   };
 
   const handleDeleteProduct = (productId: string) => {
-    setProducts(prev => prev.filter(p => p.id !== productId));
+    const updatedProducts = products.filter(p => p.id !== productId);
+    updateProducts(updatedProducts);
   };
 
   const getStockVariant = (stock: number, threshold: number): 'destructive' | 'secondary' | 'default' => {
