@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -94,11 +95,11 @@ export default function LoginPage() {
                    <Button onClick={() => handleRoleSelect('seller')} size="lg" className="w-full" variant="outline">
                     <User className="mr-2 h-5 w-5" /> Entrar como Vendedor
                   </Button>
-                   <Button onClick={() => handleRoleSelect('warehouse')} size="lg" className="w-full" variant="outline">
-                    <Warehouse className="mr-2 h-5 w-5" /> Entrar como Almacenero
-                  </Button>
-                  <Button onClick={() => handleRoleSelect('cajero')} size="lg" className="w-full" variant="outline">
+                   <Button onClick={() => handleRoleSelect('cajero')} size="lg" className="w-full" variant="outline">
                     <DollarSign className="mr-2 h-5 w-5" /> Entrar como Cajero
+                  </Button>
+                  <Button onClick={() => handleRoleSelect('warehouse')} size="lg" className="w-full" variant="outline">
+                    <Warehouse className="mr-2 h-5 w-5" /> Entrar como Almacenero
                   </Button>
                 </div>
               </div>
