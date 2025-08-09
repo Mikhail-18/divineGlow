@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, PowerOff, Bell } from 'lucide-react';
+import * as XLSX from 'xlsx';
+
 
 const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
@@ -59,8 +61,35 @@ export default function CashClosingPage() {
     const salesTotals = calculateTotals();
 
     const handleExport = () => {
-        // This is a placeholder for a more complex export logic
-        alert('Exportando reporte...');
+        const wb = XLSX.utils.book_new();
+
+        // Resumen sheet
+        const summaryData = [
+            ["Reporte de Turno", ""],
+            ["", ""],
+            ["Ventas Totales", `S/${salesTotals.total.toFixed(2)}`],
+            ["Ventas en Efectivo", `S/${salesTotals.efectivo.toFixed(2)}`],
+            ["Ventas con Tarjeta", `S/${salesTotals.tarjeta.toFixed(2)}`],
+            ["Ventas con Yape", `S/${salesTotals.yape.toFixed(2)}`],
+            ["Ventas con Plin", `S/${salesTotals.plin.toFixed(2)}`],
+        ];
+        const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+        XLSX.utils.book_append_sheet(wb, wsSummary, "Resumen de Ventas");
+
+        // Detalle sheet
+        const detailsData = paidOrders.map(order => ({
+            "Pedido ID": `#${order.id.split('-')[1]}`,
+            "Cliente": order.customerName,
+            "Método de Pago": order.paymentMethod,
+            "Vendedor": order.sellerName || 'N/A',
+            "Total": { t: 'n', v: order.total, z: '"S/"#,##0.00' },
+            "Fecha": order.date
+        }));
+        const wsDetails = XLSX.utils.json_to_sheet(detailsData);
+        XLSX.utils.book_append_sheet(wb, wsDetails, "Detalle de Transacciones");
+
+        // Generate and download the file
+        XLSX.writeFile(wb, `Reporte_Cierre_Caja_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
     
     const handleCloseShift = () => {
