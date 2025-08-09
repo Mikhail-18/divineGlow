@@ -9,10 +9,67 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Landmark, CreditCard, Smartphone, Send, ArrowLeft } from 'lucide-react';
+import { Landmark, CreditCard, Smartphone, Send, ArrowLeft, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const ORDERS_STORAGE_KEY = 'divine-hub-orders';
+
+const ReceiptDialog = ({ isOpen, onClose, order }: { isOpen: boolean, onClose: () => void, order: Order | null }) => {
+    if (!order) return null;
+
+    const handlePrint = () => {
+        window.print();
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Recibo del Pedido #{order.id.split('-')[1]}</DialogTitle>
+                    <DialogDescription>
+                        Gracias por su compra. El pedido ha sido procesado exitosamente.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-4">
+                     <Card className="bg-muted/50 shadow-none">
+                        <CardContent className="p-4 space-y-2">
+                             {order.items.map(item => (
+                                <div key={item.productId} className="flex justify-between items-center text-sm">
+                                    <span>{item.productName} x{item.quantity}</span>
+                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            ))}
+                        </CardContent>
+                     </Card>
+                    <Separator />
+                    <div className="flex justify-between font-bold text-lg">
+                        <p>Total:</p>
+                        <p>${order.total.toFixed(2)}</p>
+                    </div>
+                     <p className="text-xs text-center text-muted-foreground">Pagado. ¡Vuelva pronto!</p>
+                </div>
+                <DialogFooter className="sm:justify-between gap-2">
+                    <Button type="button" variant="secondary" onClick={onClose}>
+                        Cerrar
+                    </Button>
+                    <Button type="button" onClick={handlePrint}>
+                        <Printer className="mr-2 h-4 w-4" />
+                        Imprimir
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -24,6 +81,7 @@ export default function CheckoutPage() {
     const [splitOption, setSplitOption] = useState('none');
     const [numberOfPeople, setNumberOfPeople] = useState(2);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
+    const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
     useEffect(() => {
         try {
@@ -53,16 +111,17 @@ export default function CheckoutPage() {
                     o.id === orderId ? { ...o, status: 'Pagado' } : o
                 );
                 localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(parsedOrders));
-                toast({
-                    title: 'Pago Procesado',
-                    description: `El pedido #${orderId.split('-')[1]} ha sido marcado como pagado.`,
-                });
-                router.push('/dashboard/orders');
+                setIsReceiptOpen(true);
             }
         } catch (error) {
              toast({ title: 'Error', description: 'No se pudo procesar el pago.', variant: 'destructive' });
         }
     };
+
+    const handleCloseReceipt = () => {
+        setIsReceiptOpen(false);
+        router.push('/dashboard/orders');
+    }
     
     if (!order) {
         return <div>Cargando...</div>;
@@ -74,6 +133,21 @@ export default function CheckoutPage() {
 
     return (
         <div className="flex flex-col gap-4">
+             <style>{`
+                @media print {
+                    body > *:not(.print-receipt) {
+                        display: none;
+                    }
+                    .print-receipt {
+                        display: block;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                    }
+                }
+            `}</style>
+
             <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" onClick={() => router.back()}>
                     <ArrowLeft className="h-4 w-4"/>
@@ -170,6 +244,9 @@ export default function CheckoutPage() {
                         </Button>
                     </CardFooter>
                 </Card>
+            </div>
+             <div className="print-receipt">
+                <ReceiptDialog isOpen={isReceiptOpen} onClose={handleCloseReceipt} order={order} />
             </div>
         </div>
     )
