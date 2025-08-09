@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { MoreHorizontal, PlusCircle, Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import {
   Dialog,
@@ -22,7 +24,11 @@ import { Label } from '@/components/ui/label';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers);
+  const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
+
   const [isAddCustomerDialogOpen, setIsAddCustomerDialogOpen] = React.useState(false);
+  const [isEditCustomerDialogOpen, setIsEditCustomerDialogOpen] = React.useState(false);
+
   const [newCustomer, setNewCustomer] = React.useState({
     name: '',
     email: '',
@@ -33,6 +39,14 @@ export default function CustomersPage() {
     const { id, value } = e.target;
     setNewCustomer(prev => ({ ...prev, [id]: value }));
   };
+  
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (selectedCustomer) {
+      const { id, value } = e.target;
+      setSelectedCustomer({ ...selectedCustomer, [id]: value });
+    }
+  };
+
 
   const handleAddCustomer = () => {
     if (newCustomer.name && newCustomer.email) {
@@ -51,6 +65,18 @@ export default function CustomersPage() {
     } else {
       alert('Por favor, completa nombre y email.');
     }
+  };
+  
+  const handleEditCustomer = () => {
+    if (selectedCustomer) {
+      setCustomers(prev => prev.map(c => c.id === selectedCustomer.id ? selectedCustomer : c));
+      setIsEditCustomerDialogOpen(false);
+      setSelectedCustomer(null);
+    }
+  };
+  
+  const handleDeleteCustomer = (customerId: string) => {
+    setCustomers(prev => prev.filter(c => c.id !== customerId));
   };
 
 
@@ -114,6 +140,7 @@ export default function CustomersPage() {
                 <TableHead className="hidden sm:table-cell">Teléfono</TableHead>
                 <TableHead className="hidden md:table-cell">Último Pedido</TableHead>
                 <TableHead className="text-right">Gasto Total</TableHead>
+                <TableHead><span className="sr-only">Acciones</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -132,12 +159,90 @@ export default function CustomersPage() {
                   <TableCell className="hidden sm:table-cell">{customer.phone}</TableCell>
                   <TableCell className="hidden md:table-cell">{customer.lastOrderDate}</TableCell>
                   <TableCell className="text-right">${customer.totalSpent.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">
+                     <AlertDialog>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onSelect={() => { setSelectedCustomer(customer); setIsEditCustomerDialogOpen(true); }}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Editar
+                            </DropdownMenuItem>
+                            <AlertDialogTrigger asChild>
+                               <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Eliminar
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                         <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta acción no se puede deshacer. Esto eliminará permanentemente al cliente de tus registros.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive hover:bg-destructive/90"
+                              onClick={() => handleDeleteCustomer(customer.id)}
+                            >
+                              Sí, eliminar
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+      
+      {/* Edit Customer Dialog */}
+      <Dialog open={isEditCustomerDialogOpen} onOpenChange={setIsEditCustomerDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Cliente</DialogTitle>
+            <DialogDescription>
+              Actualiza los detalles del cliente. Haz clic en guardar cuando termines.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Nombre
+              </Label>
+              <Input id="name" value={selectedCustomer?.name || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input id="email" type="email" value={selectedCustomer?.email || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phone" className="text-right">
+                Teléfono
+              </Label>
+              <Input id="phone" value={selectedCustomer?.phone || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+          </div>
+          <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" onClick={() => setSelectedCustomer(null)}>Cancelar</Button>
+              </DialogClose>
+            <Button onClick={handleEditCustomer}>Guardar Cambios</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
