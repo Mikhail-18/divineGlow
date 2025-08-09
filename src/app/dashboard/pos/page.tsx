@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { products as allProducts, customers as allCustomers } from '@/lib/data';
+import { products as allProducts, customers as initialCustomers } from '@/lib/data';
 import type { Product, Customer, OrderItem } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,12 +25,14 @@ import {
 
 type CartItem = OrderItem & { image: string };
 
+const CUSTOMERS_STORAGE_KEY = 'divine-hub-customers';
+
 export default function POSPage() {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>(allProducts);
-  const [customers, setCustomers] = useState<Customer[]>(allCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<string>('cust-005'); // Default to "Cliente Mostrador"
+  const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddCustomerDialogOpen, setIsAddCustomerDialogOpen] = React.useState(false);
   const [newCustomer, setNewCustomer] = React.useState({
@@ -38,6 +40,31 @@ export default function POSPage() {
     email: '',
     phone: '',
   });
+
+  useEffect(() => {
+    try {
+      const storedCustomers = localStorage.getItem(CUSTOMERS_STORAGE_KEY);
+      const parsedCustomers = storedCustomers ? JSON.parse(storedCustomers) : initialCustomers;
+      setCustomers(parsedCustomers);
+      
+      const defaultCustomer = parsedCustomers.find((c: Customer) => c.name === 'Cliente Mostrador');
+      if (defaultCustomer) {
+        setSelectedCustomer(defaultCustomer.id);
+      } else if (parsedCustomers.length > 0) {
+        setSelectedCustomer(parsedCustomers[0].id)
+      }
+
+    } catch (error) {
+      console.error('Failed to parse customers from localStorage', error);
+      setCustomers(initialCustomers);
+    }
+  }, []);
+
+  const updateCustomers = (updatedCustomers: Customer[]) => {
+    setCustomers(updatedCustomers);
+    localStorage.setItem(CUSTOMERS_STORAGE_KEY, JSON.stringify(updatedCustomers));
+  };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -64,7 +91,7 @@ export default function POSPage() {
       totalSpent: 0,
     };
     const updatedCustomers = [customerToAdd, ...customers];
-    setCustomers(updatedCustomers);
+    updateCustomers(updatedCustomers);
     setSelectedCustomer(newCustomerId); // Select the new customer
     setNewCustomer({ name: '', email: '', phone: '' });
     setIsAddCustomerDialogOpen(false);
@@ -128,7 +155,10 @@ export default function POSPage() {
     });
 
     setCart([]);
-    setSelectedCustomer('cust-005');
+    const defaultCustomer = customers.find(c => c.name === 'Cliente Mostrador');
+    if (defaultCustomer) {
+      setSelectedCustomer(defaultCustomer.id);
+    }
   };
   
   const filteredProducts = products.filter(product => 
@@ -299,3 +329,5 @@ export default function POSPage() {
     </div>
   );
 }
+
+    

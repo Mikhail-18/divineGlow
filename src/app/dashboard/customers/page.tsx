@@ -22,8 +22,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+const CUSTOMERS_STORAGE_KEY = 'divine-hub-customers';
+
 export default function CustomersPage() {
-  const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers);
+  const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = React.useState<Customer | null>(null);
 
   const [isAddCustomerDialogOpen, setIsAddCustomerDialogOpen] = React.useState(false);
@@ -34,6 +36,27 @@ export default function CustomersPage() {
     email: '',
     phone: '',
   });
+
+  React.useEffect(() => {
+    try {
+      const storedCustomers = localStorage.getItem(CUSTOMERS_STORAGE_KEY);
+      if (storedCustomers) {
+        setCustomers(JSON.parse(storedCustomers));
+      } else {
+        setCustomers(initialCustomers);
+        localStorage.setItem(CUSTOMERS_STORAGE_KEY, JSON.stringify(initialCustomers));
+      }
+    } catch (error) {
+      console.error('Failed to parse customers from localStorage', error);
+      setCustomers(initialCustomers);
+    }
+  }, []);
+
+  const updateCustomers = (updatedCustomers: Customer[]) => {
+    setCustomers(updatedCustomers);
+    localStorage.setItem(CUSTOMERS_STORAGE_KEY, JSON.stringify(updatedCustomers));
+  };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -59,7 +82,7 @@ export default function CustomersPage() {
         lastOrderDate: new Date().toISOString().split('T')[0],
         totalSpent: 0,
       };
-      setCustomers(prev => [customerToAdd, ...prev]);
+      updateCustomers([customerToAdd, ...customers]);
       setNewCustomer({ name: '', email: '', phone: '' });
       setIsAddCustomerDialogOpen(false);
     } else {
@@ -69,14 +92,16 @@ export default function CustomersPage() {
   
   const handleEditCustomer = () => {
     if (selectedCustomer) {
-      setCustomers(prev => prev.map(c => c.id === selectedCustomer.id ? selectedCustomer : c));
+      const updatedCustomers = customers.map(c => c.id === selectedCustomer.id ? selectedCustomer : c);
+      updateCustomers(updatedCustomers);
       setIsEditCustomerDialogOpen(false);
       setSelectedCustomer(null);
     }
   };
   
   const handleDeleteCustomer = (customerId: string) => {
-    setCustomers(prev => prev.filter(c => c.id !== customerId));
+    const updatedCustomers = customers.filter(c => c.id !== customerId);
+    updateCustomers(updatedCustomers);
   };
 
 
@@ -246,3 +271,5 @@ export default function CustomersPage() {
     </div>
   );
 }
+
+    
