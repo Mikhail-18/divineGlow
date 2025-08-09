@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     try {
       const storedUser = localStorage.getItem('divine-glow-user');
       if (storedUser) {
@@ -61,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{ user, isAuthenticated: !!user, login, logout, loading }}
     >
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }
