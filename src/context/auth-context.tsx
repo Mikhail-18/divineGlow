@@ -16,6 +16,8 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SELLERS_STORAGE_KEY = 'divine-glow-sellers';
+const USER_STORAGE_KEY = 'divine-glow-user';
+
 
 const staticPasswords: Omit<Record<UserRole, string>, 'seller'> = {
     admin: 'admin123',
@@ -25,26 +27,17 @@ const staticPasswords: Omit<Record<UserRole, string>, 'seller'> = {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [sellers, setSellers] = useState<Seller[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('divine-glow-user');
+      const storedUser = localStorage.getItem(USER_STORAGE_KEY);
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
-      
-      const storedSellers = localStorage.getItem(SELLERS_STORAGE_KEY);
-      if (storedSellers) {
-        setSellers(JSON.parse(storedSellers));
-      } else {
-        setSellers(initialSellers);
-      }
-
     } catch (error) {
-      console.error('Failed to parse data from localStorage', error);
-      localStorage.removeItem('divine-glow-user');
+      console.error('Failed to parse user from localStorage', error);
+      localStorage.removeItem(USER_STORAGE_KEY);
     } finally {
         setLoading(false);
     }
@@ -53,41 +46,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback((userData: User, password?: string) => {
     let isAuthenticated = false;
     let userToAuthenticate: User | null = null;
-
+    
     if (!password) {
-      if (user) {
-        isAuthenticated = true;
-        userToAuthenticate = user;
-      }
+        // This case handles re-authentication on page refresh if user is already in state
+        if (user) {
+            isAuthenticated = true;
+            userToAuthenticate = user;
+        }
     } else if (userData.role === 'seller') {
-      // For sellers, userData.name is actually the sellerId from the login page
-      const seller = sellers.find(s => s.id === userData.name);
-      if (seller && seller.password === password) {
-          isAuthenticated = true;
-          // The actual user to log in has the seller's name, not their ID
-          userToAuthenticate = { name: seller.name, role: 'seller' };
-      }
+        const storedSellers = localStorage.getItem(SELLERS_STORAGE_KEY);
+        const sellers: Seller[] = storedSellers ? JSON.parse(storedSellers) : initialSellers;
+        // For sellers, userData.name is the sellerId
+        const seller = sellers.find(s => s.id === userData.name);
+        if (seller && seller.password === password) {
+            isAuthenticated = true;
+            userToAuthenticate = { name: seller.name, role: 'seller' };
+        }
     } else {
-      // For other roles, check against static passwords
-      const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
-      if (staticPassword && staticPassword === password) {
-          isAuthenticated = true;
-          userToAuthenticate = userData; // The user data is already correct
-      }
+        const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
+        if (staticPassword && staticPassword === password) {
+            isAuthenticated = true;
+            userToAuthenticate = userData;
+        }
     }
     
     if (isAuthenticated && userToAuthenticate) {
-        localStorage.setItem('divine-glow-user', JSON.stringify(userToAuthenticate));
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userToAuthenticate));
         setUser(userToAuthenticate);
         return true;
     }
 
     return false;
-  }, [user, sellers]);
+  }, [user]);
 
 
   const logout = useCallback(() => {
-    localStorage.removeItem('divine-glow-user');
+    localStorage.removeItem(USER_STORAGE_KEY);
     setUser(null);
   }, []);
   
