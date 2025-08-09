@@ -23,7 +23,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-const ORDERS_STORAGE_KEY = 'divine-hub-orders';
+const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 export default function OrdersPage() {
   const [orders, setOrders] = React.useState<Order[]>([]);

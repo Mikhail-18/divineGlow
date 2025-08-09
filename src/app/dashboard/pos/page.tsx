@@ -25,9 +25,9 @@ import {
 
 type CartItem = OrderItem & { image: string };
 
-const PRODUCTS_STORAGE_KEY = 'divine-hub-products';
-const CUSTOMERS_STORAGE_KEY = 'divine-hub-customers';
-const ORDERS_STORAGE_KEY = 'divine-hub-orders';
+const PRODUCTS_STORAGE_KEY = 'divine-glow-products';
+const CUSTOMERS_STORAGE_KEY = 'divine-glow-customers';
+const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 export default function POSPage() {
   const { toast } = useToast();

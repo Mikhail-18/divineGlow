@@ -40,7 +40,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-const PRODUCTS_STORAGE_KEY = 'divine-hub-products';
+const PRODUCTS_STORAGE_KEY = 'divine-glow-products';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);

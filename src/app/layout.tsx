@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Divine Hub',
+  title: 'Divine Glow',
   description: 'Plataforma interna para Divine Glow',
 };
 

@@ -11,8 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Users, Package, ShoppingCart, AlertTriangle, Clock } from 'lucide-react';
 
-const PRODUCTS_STORAGE_KEY = 'divine-hub-products';
-const ORDERS_STORAGE_KEY = 'divine-hub-orders';
+const PRODUCTS_STORAGE_KEY = 'divine-glow-products';
+const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -61,7 +61,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {user?.name}!</h1>
-        <p className="text-muted-foreground">Aquí tienes un resumen de la actividad de Divine Hub.</p>
+        <p className="text-muted-foreground">Aquí tienes un resumen de la actividad de Divine Glow.</p>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

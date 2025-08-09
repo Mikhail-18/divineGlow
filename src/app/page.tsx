@@ -76,7 +76,7 @@ export default function LoginPage() {
             <div className="mx-auto mb-4">
               <Logo className="h-20 w-20 text-primary" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight">Divine Hub</CardTitle>
+            <CardTitle className="text-3xl font-bold tracking-tight">Divine Glow</CardTitle>
             <CardDescription className="text-muted-foreground">
               Tu plataforma interna para el éxito.
             </CardDescription>

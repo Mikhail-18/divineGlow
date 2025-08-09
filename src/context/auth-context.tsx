@@ -27,13 +27,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setLoading(true);
     try {
-      const storedUser = localStorage.getItem('divine-hub-user');
+      const storedUser = localStorage.getItem('divine-glow-user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
     } catch (error) {
       console.error('Failed to parse user from localStorage', error);
-      localStorage.removeItem('divine-hub-user');
+      localStorage.removeItem('divine-glow-user');
     } finally {
       setLoading(false);
     }
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback((userData: User, password?: string) => {
     if (password && passwords[userData.role] === password) {
-        localStorage.setItem('divine-hub-user', JSON.stringify(userData));
+        localStorage.setItem('divine-glow-user', JSON.stringify(userData));
         setUser(userData);
         return true;
     }
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('divine-hub-user');
+    localStorage.removeItem('divine-glow-user');
     setUser(null);
   }, []);
 

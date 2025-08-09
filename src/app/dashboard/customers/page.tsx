@@ -22,7 +22,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const CUSTOMERS_STORAGE_KEY = 'divine-hub-customers';
+const CUSTOMERS_STORAGE_KEY = 'divine-glow-customers';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = React.useState<Customer[]>([]);

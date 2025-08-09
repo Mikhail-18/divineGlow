@@ -20,7 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-const ORDERS_STORAGE_KEY = 'divine-hub-orders';
+const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 const ReceiptDialog = ({ isOpen, onClose, order }: { isOpen: boolean, onClose: () => void, order: Order | null }) => {
     if (!order) return null;

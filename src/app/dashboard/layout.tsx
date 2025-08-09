@@ -82,7 +82,7 @@ export default function DashboardLayout({
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Logo className="h-8 w-8 text-primary" />
-            <h1 className="text-xl font-semibold">Divine Hub</h1>
+            <h1 className="text-xl font-semibold">Divine Glow</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -122,7 +122,7 @@ export default function DashboardLayout({
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-card px-4 md:hidden">
             <SidebarTrigger />
-            <h1 className="text-lg font-semibold">Divine Hub</h1>
+            <h1 className="text-lg font-semibold">Divine Glow</h1>
         </header>
         <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
       </SidebarInset>
