@@ -1,17 +1,45 @@
+
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import type { Order, Product } from '@/lib/types';
-import { products, orders } from '@/lib/data';
+import { products as initialProducts, orders as initialOrders } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Users, Package, ShoppingCart, AlertTriangle, Clock } from 'lucide-react';
-import React from 'react';
+
+const PRODUCTS_STORAGE_KEY = 'divine-hub-products';
+const ORDERS_STORAGE_KEY = 'divine-hub-orders';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    try {
+      const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      if (storedProducts) {
+        setProducts(JSON.parse(storedProducts));
+      } else {
+        setProducts(initialProducts);
+      }
+
+      const storedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
+      if (storedOrders) {
+        setOrders(JSON.parse(storedOrders));
+      } else {
+        setOrders(initialOrders);
+      }
+    } catch (error) {
+      console.error('Failed to load data from localStorage', error);
+      setProducts(initialProducts);
+      setOrders(initialOrders);
+    }
+  }, []);
 
   const totalProducts = products.length;
   const pendingOrders = orders.filter(o => o.status === 'Pendiente').length;
@@ -21,6 +49,7 @@ export default function DashboardPage() {
   const getStatusVariant = (status: Order['status']) => {
     switch (status) {
       case 'Pendiente': return 'default';
+      case 'Pagado': return 'secondary';
       case 'Enviado': return 'secondary';
       case 'Entregado': return 'outline';
       case 'Cancelado': return 'destructive';
@@ -32,7 +61,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Bienvenido, {user?.name}!</h1>
-        <p className="text-muted-foreground">Aquí tienes un resumen de la actividad de Divine Glow.</p>
+        <p className="text-muted-foreground">Aquí tienes un resumen de la actividad de Divine Hub.</p>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -53,7 +82,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingOrders}</div>
-            <p className="text-xs text-muted-foreground">Pedidos esperando ser enviados</p>
+            <p className="text-xs text-muted-foreground">Pedidos esperando ser procesados</p>
           </CardContent>
         </Card>
         <Card>
@@ -89,7 +118,7 @@ export default function DashboardPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-9 w-9">
-                            <AvatarImage src={order.customerAvatar} alt={order.customerName} />
+                            <AvatarImage src={order.customerAvatar} alt={order.customerName} data-ai-hint="person" />
                             <AvatarFallback>{order.customerName.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="font-medium">{order.customerName}</div>
@@ -117,7 +146,7 @@ export default function DashboardPage() {
                   lowStockProducts.map((product) => (
                     <div key={product.id} className="flex items-center">
                       <Avatar className="h-9 w-9">
-                          <AvatarImage src={product.image} alt={product.name}/>
+                          <AvatarImage src={product.image} alt={product.name} data-ai-hint="beauty product"/>
                           <AvatarFallback>{product.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="ml-4 space-y-1">
