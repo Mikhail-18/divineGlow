@@ -7,9 +7,52 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import React from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = React.useState<Customer[]>(initialCustomers);
+  const [isAddCustomerDialogOpen, setIsAddCustomerDialogOpen] = React.useState(false);
+  const [newCustomer, setNewCustomer] = React.useState({
+    name: '',
+    email: '',
+    phone: '',
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setNewCustomer(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleAddCustomer = () => {
+    if (newCustomer.name && newCustomer.email) {
+      const customerToAdd: Customer = {
+        id: `cust-${Date.now()}`,
+        name: newCustomer.name,
+        email: newCustomer.email,
+        phone: newCustomer.phone,
+        avatarUrl: `https://placehold.co/100x100.png`,
+        lastOrderDate: new Date().toISOString().split('T')[0],
+        totalSpent: 0,
+      };
+      setCustomers(prev => [customerToAdd, ...prev]);
+      setNewCustomer({ name: '', email: '', phone: '' });
+      setIsAddCustomerDialogOpen(false);
+    } else {
+      alert('Por favor, completa nombre y email.');
+    }
+  };
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -18,10 +61,48 @@ export default function CustomersPage() {
           <h1 className="text-3xl font-bold tracking-tight">Gestión de Clientes</h1>
           <p className="text-muted-foreground">Consulta y administra la información de los clientes.</p>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Añadir Cliente
-        </Button>
+        <Dialog open={isAddCustomerDialogOpen} onOpenChange={setIsAddCustomerDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Añadir Cliente
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Añadir Nuevo Cliente</DialogTitle>
+              <DialogDescription>
+                Completa los detalles para agregar un nuevo cliente.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Nombre
+                </Label>
+                <Input id="name" value={newCustomer.name} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input id="email" type="email" value={newCustomer.email} onChange={handleInputChange} className="col-span-3" />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="phone" className="text-right">
+                  Teléfono
+                </Label>
+                <Input id="phone" value={newCustomer.phone} onChange={handleInputChange} className="col-span-3" />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancelar</Button>
+              </DialogClose>
+              <Button onClick={handleAddCustomer}>Guardar Cliente</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       <Card>
         <CardContent className="pt-6">
