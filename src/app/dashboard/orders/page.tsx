@@ -28,7 +28,7 @@ const ORDERS_STORAGE_KEY = 'divine-glow-orders';
 
 export default function OrdersPage() {
   const [orders, setOrders] = React.useState<Order[]>([]);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [openOrderId, setOpenOrderId] = React.useState<string | null>(null);
   const router = useRouter();
 
@@ -78,6 +78,10 @@ export default function OrdersPage() {
   const canMarkAsShipped = user?.role === 'admin' || user?.role === 'warehouse';
   const canProcessPayment = user?.role === 'admin' || user?.role === 'cajero';
   const canCancelOrder = user?.role === 'admin' || user?.role === 'seller';
+
+  if (authLoading) {
+      return <div>Cargando...</div>
+  }
 
   return (
     <div className="flex flex-col gap-6">
