@@ -9,7 +9,6 @@ import {
   Package,
   Users,
   ShoppingCart,
-  Sparkles,
   LogOut,
 } from 'lucide-react';
 
@@ -55,7 +54,6 @@ export default function DashboardLayout({
     { href: '/dashboard/products', label: 'Productos', icon: Package, roles: ['admin', 'seller', 'warehouse'] },
     { href: '/dashboard/customers', label: 'Clientes', icon: Users, roles: ['admin', 'seller'] },
     { href: '/dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse'] },
-    { href: '/dashboard/ai-description', label: 'IA Descripciones', icon: Sparkles, roles: ['admin', 'seller'] },
   ];
 
   if (loading || !isAuthenticated) {
