@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import {
@@ -19,6 +19,23 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +43,12 @@ import { Textarea } from '@/components/ui/textarea';
 export default function ProductsPage() {
   const [products, setProducts] = React.useState<Product[]>(initialProducts);
   const { user } = useAuth();
+  
   const [isAddProductDialogOpen, setIsAddProductDialogOpen] = React.useState(false);
+  const [isEditProductDialogOpen, setIsEditProductDialogOpen] = React.useState(false);
+
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+
   const [newProduct, setNewProduct] = React.useState({
     name: '',
     description: '',
@@ -37,6 +59,13 @@ export default function ProductsPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setNewProduct(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (selectedProduct) {
+        const { id, value } = e.target;
+        setSelectedProduct({ ...selectedProduct, [id]: value });
+    }
   };
 
   const handleAddProduct = () => {
@@ -54,11 +83,26 @@ export default function ProductsPage() {
       setNewProduct({ name: '', description: '', price: '', stock: '' });
       setIsAddProductDialogOpen(false);
     } else {
-      // Basic validation feedback
       alert('Por favor, completa todos los campos requeridos.');
     }
   };
 
+  const handleEditProduct = () => {
+    if (selectedProduct) {
+        const productToUpdate = {
+            ...selectedProduct,
+            price: typeof selectedProduct.price === 'string' ? parseFloat(selectedProduct.price) : selectedProduct.price,
+            stock: typeof selectedProduct.stock === 'string' ? parseInt(selectedProduct.stock, 10) : selectedProduct.stock,
+        };
+      setProducts(prev => prev.map(p => p.id === productToUpdate.id ? productToUpdate : p));
+      setIsEditProductDialogOpen(false);
+      setSelectedProduct(null);
+    }
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+  };
 
   const getStockVariant = (stock: number, threshold: number): 'destructive' | 'secondary' | 'default' => {
     if (stock === 0) return 'destructive';
@@ -72,6 +116,8 @@ export default function ProductsPage() {
     return 'En stock';
   };
   
+  const canPerformActions = user?.role === 'admin' || user?.role === 'seller';
+  
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -79,7 +125,7 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Catálogo de Productos</h1>
           <p className="text-muted-foreground">Gestiona el inventario de productos de Divine Glow.</p>
         </div>
-        {(user?.role === 'admin' || user?.role === 'seller') && (
+        {canPerformActions && (
           <Dialog open={isAddProductDialogOpen} onOpenChange={setIsAddProductDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -142,6 +188,7 @@ export default function ProductsPage() {
                 <TableHead>Estado</TableHead>
                 <TableHead className="hidden md:table-cell">Precio</TableHead>
                 <TableHead>Stock</TableHead>
+                {canPerformActions && <TableHead><span className="sr-only">Acciones</span></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -167,12 +214,98 @@ export default function ProductsPage() {
                     ${product.price.toFixed(2)}
                   </TableCell>
                   <TableCell>{product.stock} unidades</TableCell>
+                   {canPerformActions && (
+                    <TableCell className="text-right">
+                        <AlertDialog>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button size="icon" variant="ghost">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => { setSelectedProduct(product); setIsEditProductDialogOpen(true); }}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Editar
+                                </DropdownMenuItem>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Eliminar
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Esta acción no se puede deshacer. Esto eliminará permanentemente el producto.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                    className="bg-destructive hover:bg-destructive/90"
+                                    onClick={() => handleDeleteProduct(product.id)}
+                                >
+                                    Sí, eliminar
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Product Dialog */}
+      <Dialog open={isEditProductDialogOpen} onOpenChange={setIsEditProductDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Producto</DialogTitle>
+            <DialogDescription>
+              Actualiza los detalles del producto. Haz clic en guardar cuando termines.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                Nombre
+                </Label>
+                <Input id="name" value={selectedProduct?.name || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                Descripción
+                </Label>
+                <Textarea id="description" value={selectedProduct?.description || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="price" className="text-right">
+                Precio
+                </Label>
+                <Input id="price" type="number" value={selectedProduct?.price || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="stock" className="text-right">
+                Stock
+                </Label>
+                <Input id="stock" type="number" value={selectedProduct?.stock || ''} onChange={handleEditInputChange} className="col-span-3" />
+            </div>
+          </div>
+          <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" onClick={() => setSelectedProduct(null)}>Cancelar</Button>
+              </DialogClose>
+            <Button onClick={handleEditProduct}>Guardar Cambios</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
