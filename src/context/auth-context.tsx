@@ -1,9 +1,9 @@
 
 'use client';
 
-import type { User, UserRole, Seller } from '@/lib/types';
+import type { User, UserRole, Seller, Cashier } from '@/lib/types';
 import { createContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { sellers as initialSellers } from '@/lib/data';
+import { sellers as initialSellers, cashiers as initialCashiers } from '@/lib/data';
 
 interface AuthContextType {
   user: User | null;
@@ -16,18 +16,21 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SELLERS_STORAGE_KEY = 'divine-glow-sellers';
+const CASHIERS_STORAGE_KEY = 'divine-glow-cashiers';
 const USER_STORAGE_KEY = 'divine-glow-user';
 
 
-const staticPasswords: Omit<Record<UserRole, string>, 'seller'> = {
+const staticPasswords: Omit<Record<UserRole, string>, 'seller' | 'cajero'> = {
     admin: 'admin123',
     warehouse: 'warehouse123',
-    cajero: 'cajero123'
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sellers, setSellers] = useState<Seller[]>([]);
+  const [cashiers, setCashiers] = useState<Cashier[]>([]);
+
 
   useEffect(() => {
     try {
@@ -35,8 +38,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (storedUser) {
         setUser(JSON.parse(storedUser));
       }
+
+      const storedSellers = localStorage.getItem(SELLERS_STORAGE_KEY);
+      setSellers(storedSellers ? JSON.parse(storedSellers) : initialSellers);
+
+      const storedCashiers = localStorage.getItem(CASHIERS_STORAGE_KEY);
+      setCashiers(storedCashiers ? JSON.parse(storedCashiers) : initialCashiers);
+
     } catch (error) {
-      console.error('Failed to parse user from localStorage', error);
+      console.error('Failed to parse data from localStorage', error);
       localStorage.removeItem(USER_STORAGE_KEY);
     } finally {
         setLoading(false);
@@ -48,19 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let userToAuthenticate: User | null = null;
     
     if (!password) {
-        // This case handles re-authentication on page refresh if user is already in state
-        if (user) {
-            isAuthenticated = true;
-            userToAuthenticate = user;
-        }
-    } else if (userData.role === 'seller') {
-        const storedSellers = localStorage.getItem(SELLERS_STORAGE_KEY);
-        const sellers: Seller[] = storedSellers ? JSON.parse(storedSellers) : initialSellers;
-        // For sellers, userData.name is the sellerId
-        const seller = sellers.find(s => s.id === userData.name);
+        return false;
+    }
+
+    if (userData.role === 'seller') {
+        const seller = sellers.find(s => s.id === userData.name); // userData.name is the sellerId
         if (seller && seller.password === password) {
             isAuthenticated = true;
             userToAuthenticate = { name: seller.name, role: 'seller' };
+        }
+    } else if (userData.role === 'cajero') {
+        const cashier = cashiers.find(c => c.id === userData.name); // userData.name is the cashierId
+        if (cashier && cashier.password === password) {
+            isAuthenticated = true;
+            userToAuthenticate = { name: cashier.name, role: 'cajero' };
         }
     } else {
         const staticPassword = staticPasswords[userData.role as keyof typeof staticPasswords];
@@ -77,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return false;
-  }, [user]);
+  }, [sellers, cashiers]);
 
 
   const logout = useCallback(() => {

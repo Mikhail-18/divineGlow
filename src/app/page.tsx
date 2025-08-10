@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import type { UserRole, Seller, User } from '@/lib/types';
+import type { UserRole, Seller, User, Cashier } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { KeyRound, User as UserIcon, Warehouse, LogIn, DollarSign } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { useToast } from '@/hooks/use-toast';
-import { sellers as initialSellers } from '@/lib/data';
+import { sellers as initialSellers, cashiers as initialCashiers } from '@/lib/data';
 
 const SELLERS_STORAGE_KEY = 'divine-glow-sellers';
+const CASHIERS_STORAGE_KEY = 'divine-glow-cashiers';
+
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -25,9 +27,12 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [selectedRole, setSelectedRole] = React.useState<UserRole | null>(null);
   const [selectedSellerId, setSelectedSellerId] = React.useState<string>('');
+  const [selectedCashierId, setSelectedCashierId] = React.useState<string>('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [sellers, setSellers] = React.useState<Seller[]>([]);
+  const [cashiers, setCashiers] = React.useState<Cashier[]>([]);
+
 
   React.useEffect(() => {
     try {
@@ -37,9 +42,16 @@ export default function LoginPage() {
       } else {
         setSellers(initialSellers);
       }
+      const storedCashiers = localStorage.getItem(CASHIERS_STORAGE_KEY);
+      if (storedCashiers) {
+        setCashiers(JSON.parse(storedCashiers));
+      } else {
+        setCashiers(initialCashiers);
+      }
     } catch (error) {
-      console.error('Failed to parse sellers from localStorage', error);
+      console.error('Failed to parse data from localStorage', error);
       setSellers(initialSellers);
+      setCashiers(initialCashiers);
     }
   }, []);
 
@@ -47,6 +59,7 @@ export default function LoginPage() {
     setSelectedRole(role);
     setPassword('');
     setSelectedSellerId('');
+    setSelectedCashierId('');
   };
 
   const handleLogin = () => {
@@ -62,13 +75,17 @@ export default function LoginPage() {
         toast({ title: 'Error', description: 'Por favor, selecciona un vendedor.', variant: 'destructive' });
         return;
       }
-      // For sellers, we pass the ID in the 'name' field, the auth context will resolve the actual name.
       userToLogin = { name: selectedSellerId, role: selectedRole };
+    } else if (selectedRole === 'cajero') {
+        if (!selectedCashierId) {
+            toast({ title: 'Error', description: 'Por favor, selecciona un cajero.', variant: 'destructive' });
+            return;
+        }
+        userToLogin = { name: selectedCashierId, role: selectedRole };
     } else {
         let userName = 'Usuario';
         if (selectedRole === 'admin') userName = 'Admin';
         if (selectedRole === 'warehouse') userName = 'Almacenero';
-        if (selectedRole === 'cajero') userName = 'Cajero';
         userToLogin = { name: userName, role: selectedRole };
     }
 
@@ -84,7 +101,7 @@ export default function LoginPage() {
     if (isAuthenticated) {
       router.push('/dashboard');
     } else {
-      toast({ title: 'Error de autenticación', description: 'La contraseña es incorrecta.', variant: 'destructive' });
+      toast({ title: 'Error de autenticación', description: 'Credenciales incorrectas.', variant: 'destructive' });
       setLoading(false);
     }
   };
@@ -127,6 +144,22 @@ export default function LoginPage() {
                   <SelectContent>
                     {sellers.map(seller => (
                       <SelectItem key={seller.id} value={seller.id}>{seller.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {selectedRole === 'cajero' && (
+              <div className="space-y-2">
+                <Label htmlFor="cashier-select">Cajero</Label>
+                <Select value={selectedCashierId} onValueChange={setSelectedCashierId}>
+                  <SelectTrigger id="cashier-select">
+                    <SelectValue placeholder="Selecciona un cajero" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cashiers.map(cashier => (
+                      <SelectItem key={cashier.id} value={cashier.id}>{cashier.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

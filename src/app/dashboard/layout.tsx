@@ -13,7 +13,8 @@ import {
   LogOut,
   PlusSquare,
   FileBox,
-  KeyRound
+  KeyRound,
+  DollarSign
 } from 'lucide-react';
 
 import {
@@ -61,6 +62,7 @@ export default function DashboardLayout({
     { href: '/dashboard/orders', label: 'Pedidos', icon: ShoppingCart, roles: ['admin', 'seller', 'warehouse', 'cajero'] },
     { href: '/dashboard/cash-closing', label: 'Cierre de Caja', icon: FileBox, roles: ['admin', 'cajero'] },
     { href: '/dashboard/sellers', label: 'Vendedores', icon: KeyRound, roles: ['admin'] },
+    { href: '/dashboard/cashiers', label: 'Cajeros', icon: DollarSign, roles: ['admin'] },
   ];
 
   if (loading || !isAuthenticated) {

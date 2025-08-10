@@ -53,3 +53,9 @@ export type Seller = {
   name: string;
   password?: string;
 };
+
+export type Cashier = {
+  id: string;
+  name: string;
+  password?: string;
+};
