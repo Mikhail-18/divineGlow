@@ -60,15 +60,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!password) {
         return false;
     }
+    
+    // We need to fetch the latest lists from localStorage inside login
+    // because the state might not be updated yet if a user was just created.
+    const currentSellers: Seller[] = JSON.parse(localStorage.getItem(SELLERS_STORAGE_KEY) || '[]');
+    const currentCashiers: Cashier[] = JSON.parse(localStorage.getItem(CASHIERS_STORAGE_KEY) || '[]');
 
     if (userData.role === 'seller') {
-        const seller = sellers.find(s => s.id === userData.name); // userData.name is the sellerId
+        const seller = currentSellers.find(s => s.id === userData.name); // userData.name is the sellerId
         if (seller && seller.password === password) {
             isAuthenticated = true;
             userToAuthenticate = { name: seller.name, role: 'seller' };
         }
     } else if (userData.role === 'cajero') {
-        const cashier = cashiers.find(c => c.id === userData.name); // userData.name is the cashierId
+        const cashier = currentCashiers.find(c => c.id === userData.name); // userData.name is the cashierId
         if (cashier && cashier.password === password) {
             isAuthenticated = true;
             userToAuthenticate = { name: cashier.name, role: 'cajero' };
@@ -88,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return false;
-  }, [sellers, cashiers]);
+  }, []);
 
 
   const logout = useCallback(() => {
