@@ -145,7 +145,7 @@ export default function ProductsPage() {
   };
   
   const canPerformActions = user?.role === 'admin' || user?.role === 'seller';
-  const canAddProducts = user?.role === 'admin';
+  const canAddProducts = user?.role === 'admin' || user?.role === 'warehouse';
   
   return (
     <div className="flex flex-col gap-6">
